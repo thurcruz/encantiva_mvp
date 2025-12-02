@@ -1,0 +1,1206 @@
+/* ----------------------------- */
+/* Variáveis globais             */
+/* ----------------------------- */
+:root {
+  --color-bg: #fefcff;
+  --color-white: #fff;
+  --color-black: #000;
+
+  --color-purple: #90f;
+  --color-pink: #f3c;
+  --color-purple-dark: #6a0dad;
+  --color-purple-light: #f6e9ff;
+
+  --color-border: #f3c;
+  --color-border-light: #ead3ff;
+  --color-border-dark: #bbb;
+
+  --shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* ----------------------------- */
+/* Globais                       */
+/* ----------------------------- */
+body {
+  font-family:'Inter', sans-serif;
+  margin: 0;
+  padding: 20px;
+  background: var(--color-bg);
+  padding-bottom: 80px;
+}
+
+h2 {
+  color: var(--color-purple);
+  font-weight: 900;
+  margin-bottom: 0px;
+}
+
+p {
+  color: var(--color-pink);
+  font-weight: 500;
+}
+
+.tela {
+  display: none;
+  flex-direction: column;
+  padding-bottom: 120px;
+}
+
+@media (min-width: 500px) {
+  .tela {
+    display: none;
+    flex-direction: column;
+    padding-bottom: 120px;
+    width: 61%;
+  }
+}
+
+.tela.ativa {
+  display: flex;
+}
+
+.tela img {
+  display: block;        
+  margin: auto;  
+  padding: 32px;      
+  max-width: 100%;
+  height: auto;
+}
+
+@media (min-width: 500px) {
+  .tela img {
+    display: block;
+    margin: 0;
+    padding: 32px 0px;
+    max-width: 180px;
+    height: auto;
+  }
+}
+
+/* Imagem fixa no desktop, lado direito */
+.imagem-fixa {
+  position: fixed;
+  top: 0;
+  right: 0;           
+  width: 50%;         
+  height: 100vh;      
+  background-image: url('assets/BG-Desktop.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: right center;
+  display: block;
+  z-index: -1;
+}
+
+/* Esconde no mobile */
+@media (max-width: 767px) {
+  .imagem-fixa {
+    display: none;
+  }
+}
+
+/* Ajusta conteúdo para não ficar por trás da imagem */
+@media (min-width: 768px) {
+  .tela {
+    margin-right: 40%;
+  }
+}
+
+/* ----------------------------- */
+/* Barra de progresso            */
+/* ----------------------------- */
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--color-border-light);
+  margin-bottom: 20px;
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+@media (min-width: 500px) {
+  .progress-bar {
+    width: 50%;
+  }
+}
+
+#progress {
+  height: 100%;
+  width: 0%;
+  background: var(--color-purple);
+  transition: width 0.3s ease;
+}
+
+#etapaAtual {
+  position: absolute;
+  right: 10px;
+  top: -22px;
+  font-size: 14px;
+  color: var(--color-black);
+}
+
+/* ----------------------------- */
+/* Notificação                   */
+/* ----------------------------- */
+.notificacao {
+  position: fixed;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffdcdc;
+  color: rgb(245, 12, 51);
+  padding: 16px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  border: 2px solid #f50c33;
+  box-shadow: 0 4px 12px rgba(252, 24, 24, 0.15);
+  transition: top 0.4s ease;
+  z-index: 1000;
+  width: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+@media (min-width: 500px) {
+  .notificacao {
+    left: 20px;
+    transform: none;
+    width: 542px;
+    justify-content: flex-start;
+  }
+}
+
+.notificacao.ativa {
+  top: 20px;
+}
+
+.notificacao .icone {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* ----------------------------- */
+/* Botões globais                */
+/* ----------------------------- */
+.btn {
+  width: 100%;
+  height: 56px;
+  border-radius: 32px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--color-pink);
+  color: var(--color-white);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--color-pink);
+  color: var(--color-pink);
+}
+
+.buttons_home, .buttons {
+  width: 90%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: fixed;
+  bottom: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 20px;
+  background-color: var(--color-bg);
+  width: 90%;
+  max-width: 585px;
+}
+
+@media (min-width: 500px) {
+  .buttons {
+    flex-direction: row;
+    position: fixed;
+    left: 0px;   
+    margin: 0;
+    bottom: 0px;
+    padding: 20px;
+    transform: none;
+    gap: 12px;
+    width: 80%;
+  }
+}
+
+/* ----------------------------- */
+/* Campos de entrada             */
+/* ----------------------------- */
+.input-padrao {
+  display: block;
+  width: 100%;
+  height: 56px;
+  padding: 20px;
+  margin-bottom: 0px;
+  border: 1px solid var(--color-pink);
+  border-radius: 32px;
+  font-size: 16px;
+  box-sizing: border-box;
+  background: var(--color-white);
+  outline: none;
+  transition: 0.2s;
+}
+
+.input-padrao:focus {
+  border-color: var(--color-purple);
+  box-shadow: 0 0 6px rgba(153, 0, 255, 0.3);
+}
+
+@media (min-width: 500px) {
+  .input-padrao {
+    width: 80%;
+    height: 56px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+}
+
+/* ----------------------------- */
+/* Tela 1                        */
+/* ----------------------------- */
+#tela1 {
+  align-items: center;
+  text-align: center;
+  justify-content: center; 
+}
+
+/* ----------------------------- */
+/* Tela 2 - Tipos de festa       */
+/* ----------------------------- */
+#tela2 label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  margin: 8px 0;
+  user-select: none;
+  color: #140033;
+  font-size: 16px;
+}
+
+.grid-radios-type {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0px 50px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+#tela2 input[type="radio"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--color-purple);
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+}
+
+#tela2 input[type="radio"]:checked::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-pink);
+}
+
+/* ----------------------------- */ 
+/* Tela 3 - Lista de temas */ 
+/* ----------------------------- */ 
+.select-busca { 
+  position: relative; 
+  width: 100%; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px; } 
+
+
+#listaTemas { 
+  position: absolute; 
+  top: 56px; 
+  left: 0; 
+  width: 100%; 
+  background: var(--color-white); 
+  border: 1px solid var(--color-border-light); 
+  border-radius: 16px; 
+  max-height: 200px; 
+  overflow-y: auto; 
+  z-index: 10; 
+  display: none; 
+  color: #140033; 
+} 
+
+@media (min-width: 500px) { 
+  #listaTemas { 
+    position: absolute; 
+    top: 56px; 
+    left: 0; 
+    width: 80%;
+     background: var(--color-white); 
+     border: 1px solid var(--color-border-light); 
+     border-radius: 16px; 
+     max-height: 200px; 
+     overflow-y: auto; 
+     z-index: 10; 
+     display: none; 
+     color: #140033; 
+  } 
+} 
+  
+#listaTemas label { 
+    display: block;
+    padding: 10px; 
+    cursor: pointer; } 
+     
+#listaTemas label:hover { 
+    background: #f0f0f0; 
+  } 
+     
+.select-busca h2 { 
+    margin-top: 24px; 
+    margin-bottom: 8px; 
+    font-size: 18px; 
+    font-weight: 700; 
+    color: var(--color-purple); } 
+
+.hidden {
+  display: none;
+}
+
+    
+.label-temaOutro { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    font-size: 16px; 
+    font-weight: 600; 
+    color: var(--color-pink); 
+    cursor: pointer; margin-bottom: 8px; } 
+    
+#temaOutro { 
+      -webkit-appearance: none; 
+      appearance: none; 
+      width: 20px; 
+      height: 20px; 
+      border: 2px solid var(--color-purple); 
+      border-radius: 4px; 
+      background: transparent; 
+      cursor: pointer; 
+      position: relative; 
+      flex-shrink: 0; 
+    } 
+      
+#temaOutro:checked { 
+  background: var(--color-pink); 
+  border-color: var(--color-purple); } 
+        
+#temaOutro:checked::after { 
+  content: ""; 
+  position: absolute; 
+  top: 1px; 
+  left: 5px;
+   width: 4px; 
+   height: 10px; 
+   border: solid white; 
+   border-width: 0 2px 2px 0; 
+   transform: rotate(45deg); } 
+          
+#novoTema { 
+  display: none; 
+  margin-top: 8px; }
+
+#dataFesta {
+    text-align: center;        /* centraliza o texto */
+    color: #140033;            /* texto rosa */
+    font-size: 16px;           /* tamanho legível */
+    padding: 10px;             /* espaço interno */
+    border-radius: 28px;        /* cantos arredondados */
+    border: 1px solid var(--color-pink);    /* borda leve */
+    width: 90%;              /* largura desejada */
+    height: 32px;
+}
+
+
+.cards-tamanhos {
+  gap: 2px;
+  padding: 20px 0 0 0;
+  width: 100%;
+  text-align: center;
+ 
+}
+
+.card-tamanho_desativado {
+  opacity: 0.5;
+}
+
+.badge-em-breve {
+  background-color: var(--color-pink); /* rosa */
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 6px 4px;
+  border-radius: 28px;
+  margin: 12px;
+  text-align: center;
+}
+
+.card-tamanho::-webkit-scrollbar {
+  display: none;
+}
+
+.card-tamanho {
+  flex: 0 0 220px;
+  border: 2px solid var(--color-border-light);
+  border-radius: 16px;
+  padding: 15px;
+  background-color: white;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  
+}
+
+
+.card-tamanho.selecionado {
+  border-color: rgb(203, 126, 255);
+  background-color: var(--color-purple);
+ 
+}
+
+.card-tamanho h3 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  text-align: center;
+  color: var(--color-purple);
+  font-weight: 700;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--color-border-light);
+}
+
+.card-tamanho.selecionado h3 {
+  color: var(--color-white); /* título fica branco */
+  border-bottom: 2px solid var(--color-purple-dark);
+  
+}
+
+.card-tamanho.selecionado p {
+  color: var(--color-white); /* título fica branco */
+  
+}
+
+#tela6 .buttons {
+  margin-top: auto; /* gruda no rodapé */
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 15px 0;
+}
+
+
+
+
+/* ----------------------------- */
+/* Tela 4 - Combos               */
+/* ----------------------------- */
+/* Container principal */
+.cards-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  
+}
+
+.cards-combos {
+  display: flex;
+  overflow-x: auto;
+  
+  gap: 20px;
+  padding: 20px 0 0 0;
+  width: 100%;
+ 
+}
+
+.cards-combos::-webkit-scrollbar {
+  display: none;
+}
+
+.card-combo {
+  flex: 0 0 220px;
+  border: 2px solid var(--color-border-light);
+  border-radius: 16px;
+  padding: 0px 0px 0px 0px;
+  background-color: white;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  justify-content: space-between;
+  
+}
+
+
+.card-combo.selecionado {
+  border-color: rgb(203, 126, 255);
+  background-color: var(--color-purple);
+ 
+}
+
+.card-combo h3 {
+  margin: 16px;
+  font-size: 18px;
+  text-align: center;
+  color: var(--color-purple);
+  font-weight: 700;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--color-border-light);
+}
+
+.card-combo.selecionado h3 {
+  color: var(--color-white); /* título fica branco */
+  border-bottom: 2px solid var(--color-purple-dark);
+  
+}
+
+.card-combo.selecionado .combo-itens h4,
+.card-combo.selecionado .combo-itens p {
+  color: var(--color-white); /* itens mudam de cor */
+}
+
+.card-combo .combo-itens {
+  margin: 0px 0px 16px 16px; /* ajusta espaçamento entre itens */
+  font-size: 14px;
+  font-weight: 800;
+  color: #140033;
+  gap: 20px;
+}
+
+.card-combo .combo-itens h4 {
+  margin: 4px 4px; /* ajusta espaçamento entre itens */
+  font-size: 14px;
+  font-weight: 800;
+  color: #140033;
+  gap: 20px;
+}
+
+
+.card-combo .combo-itens p {
+  margin: 4px 4px; /* ajusta espaçamento entre itens */
+  font-size: 14px;
+  color: #140033;
+  gap: 20px;
+}
+
+.card-combo .itens-promoção {
+  margin: 0px 0px 10px 16px; /* ajusta espaçamento entre itens */
+  font-size: 14px;
+  color: var(--color-pink);
+  gap: 20px;
+}
+
+.card-combo .itens-promoção h4, 
+.card-combo .itens-promoção p { /* ajusta espaçamento entre itens */
+  margin: 4px;
+  font-size: 14px;
+  color: var(--color-pink);
+  gap: 20px;
+}
+
+.card-combo.selecionado .itens-promoção h4, 
+.card-combo.selecionado .itens-promoção p {
+  margin: 4px; /* ajusta espaçamento entre itens */
+  font-size: 14px;
+  color: var(--color-white);
+  gap: 20px;
+}
+
+
+.card-combo .valor {
+  width: 250px;
+  text-align: center;
+  align-items: center;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 16px 0px 16px 0px;
+  margin: 0 0 0 0;
+  border-radius: 0px 0px 16px 16px;
+  border-color: 2px solid #90f;
+  background-color: var(--color-pink);
+  color: var(--color-white);
+}
+
+.card-combo.selecionado .valor {
+  width: 250px;
+  text-align: center;
+  align-items: center;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 16px 0px 16px 0px;
+  margin: 0 0 0 0;
+  border-radius: 0px 0px 16px 16px;
+  border-color: 2px solid #90f;
+  background-color: var(--color-purple-dark);
+  color: var(--color-white);
+}
+
+.item-promoçao p {
+  color: #90f;
+}
+
+/* Desktop */
+@media (min-width: 500px) {
+  .cards-combos {
+    display: flex;
+    width: 80%;
+    overflow-x: auto;
+    gap: 20px;
+    scroll-behavior: smooth;
+    margin-bottom: 0px;
+    justify-content: flex-start; /* mantém alinhamento à esquerda no desktop */
+  }
+}
+
+/* ----------------------------- */
+/* Versão Mobile - padrão        */
+/* ----------------------------- */
+
+/* Container principal da mesa */
+.mesa-container {
+  display: flex;
+  justify-content: space-between;
+  width: 92%;
+  align-items: center;
+  background: #fff0f9; /* rosa claro */
+  padding: 12px;
+  border-radius: 0px 50px 50px 0px;
+}
+
+@media (min-width: 600px) {
+.mesa-container {
+  width: 100%;
+}
+}
+
+/* Info do lado esquerdo (label + descrição) */
+.mesa-info {
+  display: flex;
+  flex-direction: column; /* empilha label e desc */
+  align-items: flex-start; /* alinha à esquerda */
+  gap: 12 px; /* distância mínima entre label e descrição */
+  width: 60%;
+}
+
+@media (min-width: 500px) {
+.mesa-info {
+  display: flex;
+  flex-direction: column; /* empilha label e desc */
+  align-items: flex-start; /* alinha à esquerda */
+  gap: 2 px; /* distância mínima entre label e descrição */
+}
+}
+
+
+
+/* Label principal */
+#mesa-label {
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 24px;
+  color: #140033;
+  margin: 0;
+  padding: 2px 0px;
+}
+
+/* Descrição */
+#desc-mesa {
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1;
+  color: #140033;
+  margin: 0;
+  padding: 2px 0px;
+}
+
+
+/* Switch customizado */
+#switch {
+  position: relative;
+  width: 60px;
+  height: 36px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+#switch span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #140033; /* fundo base */
+  border-radius: 9999px;
+}
+
+#switch button {
+  width: 28px;
+  height: 28px;
+  background: #2C264C; /* círculo desativado */
+  border: 2px solid #140033;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  transform: translateY(-50%);
+  transition: left 0.3s, background-color 0.3s;
+  cursor: pointer;
+}
+
+/* Ativado */
+#switch.active button {
+  left: 28px;
+  background-color: #FF33CC; /* círculo ativado */
+}
+
+/* ----------------------------- */
+/* Versão Desktop                */
+/* ----------------------------- */
+@media (min-width: 481px) {
+  .mesa-container {
+    width: 75%;
+    padding: 12px 12px;
+    gap: 20px;
+    
+  }
+
+  .mesa-info {
+    gap: 24px;
+  }
+}
+
+/* ----------------------------- */
+/* Botões de scroll circulares   */
+/* ----------------------------- */
+.scroll-buttons {
+  display: flex;
+  justify-content: flex-start; /* alinhamento à esquerda no desktop */
+  gap: 16px;
+  margin-top: 16px;
+  width: 100%;
+}
+
+.scroll-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-purple);
+  display: flex;
+  align-items: center;       /* centraliza o ícone verticalmente */
+  justify-content: center;   /* centraliza o ícone horizontalmente */
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.scroll-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+.scroll-btn:hover {
+  background: var(--color-pink);
+}
+
+/* Mobile: esconde os botões de scroll */
+@media (max-width: 499px) {
+  .scroll-buttons {
+    display: none;
+  }
+}
+
+
+.obs {
+  color: var(--color-border-dark);
+  text-align: center;
+  font-size: 14px;
+}
+
+.link_contato {
+  color: var(--color-border-dark);
+  text-align: center;
+  font-size: 14px;
+}
+
+.containerValorTotal {
+  display: flex;
+
+  border-top: 2px solid #e3dfff;
+  justify-content: space-around;
+}
+
+
+   /* Valor total */
+#valorTotal {
+  font-size: 18px;
+  font-weight: bold;
+  padding: 16px 0px;
+  color: #140033;
+}
+
+#totalAdicionais {
+  font-size: 18px;
+  font-weight: bold;
+  padding: 16px 0px;
+  color: #140033;
+}
+
+
+.Total{
+  font-size: 18px;
+  font-weight: bold;
+  padding: 16px 0px;
+  color:#140033;
+}
+
+
+
+/* ----------------------------- */
+/* Tela 5 a 10                   */
+/* ============================ */
+
+/* Tela 5 - Homenageado */
+#tela4 input[type="text"] {
+  margin-bottom: 12px;
+}
+
+#tela9 input[type="text"] {
+  margin-bottom: 12px;
+}
+
+
+/* Tela 5 - Data do evento */
+#tela5 input[type="date"] {
+  width: 100%;
+  height: 56px;
+  padding: 14px;
+  border: 1px solid var(--color-pink);
+  border-radius: 32px;
+  font-size: 16px;
+  outline: none;
+}
+
+/* Tela 6 - Adicionais */
+/* Container principal da mesa */
+.adicionais-button {
+  display: flex;
+  justify-content: space-between;
+  width: 92%;
+  align-items: center;
+  background: #fff0f9; /* rosa claro */
+  padding: 12px;
+  border-radius: 0px 50px 50px 0px;
+  margin:0px 0px 12px 0px;
+}
+
+@media (min-width: 600px) {
+.adicionais-button {
+  width: 100%;
+}
+}
+
+/* Info do lado esquerdo (label + descrição) */
+.adicionais-info {
+  display: flex;
+  flex-direction: column; /* empilha label e desc */
+  align-items: flex-start; /* alinha à esquerda */
+  gap: 12 px; /* distância mínima entre label e descrição */
+  width: 60%;
+}
+
+@media (min-width: 500px) {
+.adicionais-info {
+  display: flex;
+  flex-direction: column; /* empilha label e desc */
+  align-items: flex-start; /* alinha à esquerda */
+  gap: 2 px; /* distância mínima entre label e descrição */
+}
+}
+
+
+/* Label principal */
+#adicionais-label {
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 24px;
+  color: #140033;
+  margin: 0;
+}
+
+/* Descrição */
+#desc-adicionais {
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1;
+  color: #140033;
+  margin: 0;
+  padding: 2px 0px;
+}
+
+
+/* Switch customizado */
+#switchAdicionais {
+  position: relative;
+  width: 60px;
+  height: 36px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+#switchAdicionais span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #140033; /* fundo base */
+  border-radius: 9999px;
+}
+
+#switchAdicionais button {
+  width: 28px;
+  height: 28px;
+  background: #2C264C; /* círculo desativado */
+  border: 2px solid #140033;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  transform: translateY(-50%);
+  transition: left 0.3s, background-color 0.3s;
+  cursor: pointer;
+}
+
+/* Ativado */
+#switchAdicionais.active button {
+  left: 28px;
+  background-color: #FF33CC; /* círculo ativado */
+}
+
+/* ----------------------------- */
+/* Versão Desktop                */
+/* ----------------------------- */
+@media (min-width: 481px) {
+  .adicionais-button {
+    width: 75%;
+    padding: 12px 12px;
+    gap: 20px;
+    
+  }
+
+  .adicionais-info {
+    gap: 24px;
+  }
+}
+
+
+.adicionais-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.adicional-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 2px solid #ff4da6;
+  border-radius: 10px;
+  padding: 12px;
+  background: #fff0f6;
+}
+
+.adicional-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background-color: #fff;
+}
+
+.adicional-card .info h4 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--color-purple);
+}
+
+.adicional-card .info p {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #555;
+}
+
+.adicional-card .quantidade {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.adicional-card .quantidade button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--color-purple);
+  color: #fff;
+  font-weight: bold;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.adicional-card .quantidade button:hover {
+  background-color: #ab67f0; /* tom mais claro ao passar o mouse */
+}
+
+.adicional-card .quantidade span {
+  min-width: 24px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 16px;
+  display: inline-block;
+}
+
+
+.grid-radios-pay {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0px 50px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+
+
+#tela9 input[type="radio"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--color-purple);
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+}
+
+#tela9 input[type="radio"]:checked::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-pink);
+}
+
+
+#tela10 {
+  gap: 12px;
+}
+
+.descricaoResumo {
+  color: #140033;
+}
+
+/* Tela 10 - Dados + contrato */
+#resumo {
+  background: var(--color-white);
+  border: 1px solid var(--color-border-light);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+/* Tela 9 - Resumo final */
+.pix-box {
+  display: flex;
+  align-items: center;
+  width: 350px;
+  margin: 15px auto;
+  height: 48px; /* altura igual para tudo */
+  font-family: 'Inter', sans-serif;
+}
+
+.pix-box span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* mostra os três pontinhos */
+  background: #fff0f6; /* fundo rosa clarinho */
+  border: 2px solid var(--color-border-light); /* contorno rosa */
+  border-right: none; /* retinho no encontro com o botão */
+  border-radius: 8px 0 0 8px; /* arredondado só na esquerda */
+  padding: 10px 10px 10px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1; /* ocupa todo o espaço restante */
+  box-sizing: border-box;
+  
+  height: 50px;
+}
+
+.copy-msg {
+  color: var(--color-pink);
+}
+
+.pix-box button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-pink); /* rosa do botão */
+  color: #fff;
+  border: 2px solid var(--color-pink); /* mesma borda para parecer contínuo */
+  border-left: none; /* retinho no encontro com o texto */
+  border-radius: 0 8px 8px 0; /* arredondado só na direita */
+  height: 50px;
+  padding: 0 10px;
+  cursor: pointer;
+  gap: 10px;
+
+  font-family: 'Inter';
+}
+
+.pix-box button:hover {
+  background-color: var(--color-pink);
+}
