@@ -2,8 +2,8 @@
 include 'conexao.php'; // Inclui o arquivo de conexão mysqli
 
 // Verifica se houve erro na conexão (já verificado no conexao.php, mas para segurança)
-if ($conexao->connect_errno) {
-    $erro = "Erro na conexão: " . $conexao->connect_error;
+if ($conn->connect_errno) {
+    echo "Erro na conexão: " . $conn->connect_error;
     $pedidos = [];
 } else {
     // 1. Lógica de Consulta (READ)
@@ -11,13 +11,13 @@ if ($conexao->connect_errno) {
             FROM pedidos 
             ORDER BY data_criacao DESC";
     
-    $resultado = $conexao->query($sql);
+    $resultado = $conn->query($sql);
     
     if ($resultado) {
         $pedidos = $resultado->fetch_all(MYSQLI_ASSOC);
         $resultado->free();
     } else {
-        $erro = "Erro ao consultar pedidos: " . $conexao->error;
+        $erro = "Erro ao consultar pedidos: " . $conn->error;
         $pedidos = [];
     }
 }

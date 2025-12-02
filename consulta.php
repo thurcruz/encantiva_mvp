@@ -1,46 +1,83 @@
 <?php
-const SUPABASE_URL = 'https://vzvftpwiykzptkhaaqmi.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6dmZ0cHdpeWt6cHRraGFhcW1pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyNTc1MTYsImV4cCI6MjA3OTgzMzUxNn0.oRsaIywJxwaU1484HD8w1qtT89zgRil4CYvHwvKL6LY'; 
+// consulta.php - Busca pedidos usando MySQLi no servidor local
 
+include 'conexao.php'; // Inclui o objeto $conexao (mysqli)
 
-$busca = isset($_GET['busca']) ? trim($_GET['busca']) : "";
-
-// Configuração da requisição (SELECT)
-$endpoint = "/rest/v1/pedidos";
-$query_params = "select=*&order=data_criacao.desc";
-
-if ($busca !== "") {
-    // Adiciona o filtro LIKE do PostgREST (ilike.*%busca%)
-    $busca_param = urlencode("ilike.*%${busca}%");
-    $query_params .= "&or=(nome_cliente.${busca_param},tema.${busca_param},data_evento.${busca_param})";
-}
-
-$url = $SUPABASE_URL . $endpoint . "?" . $query_params;
-
-// Realiza a requisição cURL
-$ch = curl_init($url);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-    "apikey: {$SUPABASE_KEY}",
-    "Authorization: Bearer {$SUPABASE_KEY}",
-    "Content-Type: application/json"
-));
-$response = curl_exec($ch);
-$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-$pedidos = json_decode($response, true);
-
-if ($http_code != 200 || $pedidos === null || empty($pedidos)) {
-    echo "<tr><td colspan='9'>Nenhum resultado encontrado ou Erro ao buscar pedidos.</td></tr>";
+// Verifica se houve erro na conexão
+if ($conn->connect_errno) {
+    echo "<tr><td colspan='9'>Erro na conexão: " . $conn->connect_error . "</td></tr>";
     exit();
 }
 
-// O laço de repetição deve ser alterado de $resultado->fetch_assoc() para um loop simples de array
-foreach ($pedidos as $row) {
-    // ... sua lógica de formatação de datas e status
-    // ... echo "<tr>...";
+$busca = isset($_GET['busca']) ? trim($_GET['busca']) : "";
+// Prepara o termo de busca para a cláusula LIKE (%busca%)
+$termo_busca = "%" . $busca . "%";
+
+// 1. Constrói a query SQL
+// Busca por nome_cliente, tema ou telefone (baseado no campo de busca do gestor.php)
+$sql = "SELECT id_pedido, data_criacao, nome_cliente, telefone, tema, data_evento, combo_selecionado, valor_total, status 
+        FROM pedidos 
+        WHERE nome_cliente LIKE ? OR tema LIKE ? OR telefone LIKE ?
+        ORDER BY data_criacao DESC";
+
+// 2. Prepara a declaração
+$stmt = $conn->prepare($sql);
+
+if ($stmt) {
+    // 3. Faz o bind dos parâmetros (3x o termo de busca como string 's')
+    $stmt->bind_param("sss", $termo_busca, $termo_busca, $termo_busca);
+    
+    // 4. Executa
+    $stmt->execute();
+    
+    // 5. Obtém o resultado
+    $resultado = $stmt->get_result();
+    
+    if ($resultado->num_rows > 0) {
+        // 6. Loop e exibe os resultados (gera as linhas da tabela)
+        while ($pedido = $resultado->fetch_assoc()) {
+            // Lógica de formatação de data e valor
+            $data_criacao_formatada = date('d/m/Y H:i', strtotime($pedido['data_criacao']));
+            $data_evento_formatada = date('d/m/Y', strtotime($pedido['data_evento']));
+            $valor_total_formatado = number_format($pedido['valor_total'], 2, ',', '.');
+            
+            // Lógica para a classe do badge de status
+            $status_class = strtolower(str_replace(' ', '', $pedido['status']));
+            $status_badge = "<span class='status-badge {$status_class}'>" . htmlspecialchars($pedido['status']) . "</span>";
+            
+            // Sanitiza os dados para evitar XSS no HTML
+            $id_pedido = htmlspecialchars($pedido['id_pedido']);
+            $nome_cliente = htmlspecialchars($pedido['nome_cliente']);
+            $telefone = htmlspecialchars($pedido['telefone']);
+            $tema = htmlspecialchars($pedido['tema']);
+            $combo_selecionado = htmlspecialchars($pedido['combo_selecionado']);
+
+            echo "<tr>";
+            echo "<td>{$id_pedido}</td>";
+            echo "<td>{$data_criacao_formatada}</td>";
+            echo "<td>{$nome_cliente}<br><small>{$telefone}</small></td>";
+            echo "<td>{$tema}</td>";
+            echo "<td>{$data_evento_formatada}</td>";
+            echo "<td>{$combo_selecionado}</td>";
+            echo "<td>R$ {$valor_total_formatado}</td>";
+            echo "<td>{$status_badge}</td>";
+            echo "<td>";
+            echo "<a href='editar.php?id={$id_pedido}' class='btn-acao btn-editar'>Detalhes/Editar</a>";
+            echo "<a href='excluir.php?id_pedido={$id_pedido}' class='btn-acao btn-excluir' onclick=\"return confirm('Tem certeza que deseja excluir este pedido?');\">Excluir</a>";
+            echo "</td>";
+            echo "</tr>";
+        }
+    } else {
+        // Nenhum resultado encontrado
+        echo "<tr><td colspan='9'>Nenhum resultado encontrado.</td></tr>";
+    }
+
+    $stmt->close();
+} else {
+    // Erro ao preparar a consulta SQL
+    echo "<tr><td colspan='9'>Erro ao preparar a consulta: " . $conn->error . "</td></tr>";
 }
 
-// REMOVA: $conexao->close();
+// Fechar a conexão
+$conn->close();
 ?>

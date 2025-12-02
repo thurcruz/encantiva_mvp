@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $telefone = $_POST['telefone'];
     $data_evento = $_POST['data_evento'];
     $status = $_POST['status'];
-    $observacoes = $_POST['observacoes'];
+    
     
     // Simplificando o UPDATE: Focamos nos campos mais importantes para o Gestor
     $sql_update_pedido = "UPDATE pedidos SET 
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                           WHERE id_pedido = ?";
     
     // Prepara a query para evitar injeção SQL
-    $stmt = $conexao->prepare($sql_update_pedido);
+    $stmt = $conn->prepare($sql_update_pedido);
 
     if ($stmt) {
         // 's' = string, 's' = string, 's' = string, 's' = string, 'i' = integer
@@ -56,7 +56,7 @@ $sql_select = "
     GROUP BY p.id_pedido
 ";
 
-$stmt = $conexao->prepare($sql_select);
+$stmt = $conn->prepare($sql_select);
 
 if ($stmt) {
     $stmt->bind_param("i", $id_pedido); // 'i' = integer
@@ -71,7 +71,7 @@ if ($stmt) {
     }
     $stmt->close();
 } else {
-    $mensagem = "Erro ao carregar dados: " . $conexao->error;
+    $mensagem = "Erro ao carregar dados: " . $conn->error;
     $pedido = null;
 }
 ?>
@@ -162,11 +162,11 @@ if ($stmt) {
                 </div>
 
                 <button type="submit" class="btn-salvar">Salvar Alterações</button>
-                <a href="index.php" class="btn-voltar">Voltar para a Lista</a>
+                <a href="gestor.php" class="btn-voltar">Voltar para a Lista</a>
 
             </form>
         <?php else: ?>
-            <a href="index.php" class="btn-voltar">Voltar para a Lista</a>
+            <a href="gestor.php" class="btn-voltar">Voltar para a Lista</a>
         <?php endif; ?>
     </div>
 </body>

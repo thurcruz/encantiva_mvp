@@ -3,8 +3,8 @@
 include 'conexao.php'; // $conexao = new mysqli(...)
 
 // REDIRECIONA SE CONEXAO COM ERRO
-if ($conexao->connect_errno) {
-    die("Erro na conexão: " . $conexao->connect_error);
+if ($conn->connect_errno) {
+    die("Erro na conexão: " . $conn->connect_error);
 }
 
 // Função simples de sanitização de entrada para exibição
@@ -47,15 +47,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (count($errors) === 0) {
         // Insere pedido com transaction
-        $conexao->begin_transaction();
+        $conn->begin_transaction();
 
         try {
             $sql_insert = "INSERT INTO pedidos 
                 (data_criacao, nome_cliente, telefone, data_evento, combo_selecionado, valor_total, status, tipo_festa, tema, nome_homenageado, idade_homenageado, inclui_mesa, forma_pagamento)
                 VALUES (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-            $stmt = $conexao->prepare($sql_insert);
-            if (!$stmt) throw new Exception("Erro ao preparar INSERT: " . $conexao->error);
+            $stmt = $conn->prepare($sql_insert);
+            if (!$stmt) throw new Exception("Erro ao preparar INSERT: " . $conn->error);
 
             $stmt->bind_param(
                 "sssssdsssiis",
@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $linhas = preg_split("/\r\n|\n|\r/", $adicionais_text);
                 $sql_adicional = "INSERT INTO pedidos_adicionais (id_pedido, quantidade, nome_adicional, valor_unidade) VALUES (?, ?, ?, ?)";
                 $stmtAdd = $conexao->prepare($sql_adicional);
-                if (!$stmtAdd) throw new Exception("Erro ao preparar INSERT adicionais: " . $conexao->error);
+                if (!$stmtAdd) throw new Exception("Erro ao preparar INSERT adicionais: " . $conn->error);
 
                 foreach ($linhas as $linha) {
                     $linha = trim($linha);
@@ -107,13 +107,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmtAdd->close();
             }
 
-            $conexao->commit();
+            $conn->commit();
 
             // Redireciona para lista com parâmetro de sucesso
-            header("Location: index.php?msg=" . urlencode("Pedido #{$novo_id} criado com sucesso"));
+            header("Location: gestor.php?msg=" . urlencode("Pedido #{$novo_id} criado com sucesso"));
             exit;
         } catch (Exception $e) {
-            $conexao->rollback();
+            $conn->rollback();
             $errors[] = "Erro ao salvar pedido: " . $e->getMessage();
         }
     }
