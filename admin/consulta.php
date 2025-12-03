@@ -1,7 +1,7 @@
 <?php
 // consulta.php - Busca pedidos usando MySQLi no servidor local
 
-include 'conexao.php'; // Inclui o objeto $conexao (mysqli)
+include '../conexao.php';
 
 // Verifica se houve erro na conexão
 if ($conn->connect_errno) {

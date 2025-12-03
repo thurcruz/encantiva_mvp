@@ -1,5 +1,5 @@
 <?php
-include 'conexao.php'; // Inclui o arquivo de conexão mysqli
+include '../conexao.php';
 
 // Verifica se houve erro na conexão (já verificado no conexao.php, mas para segurança)
 if ($conn->connect_errno) {

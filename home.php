@@ -1,3 +1,17 @@
+<?php
+// home.php
+session_start();
+
+// Redireciona para login se não estiver autenticado
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: login.php');
+    exit();
+}
+
+// O restante do conteúdo HTML (antigo index.html)
+?>
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -7,7 +21,7 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
   <script src="script.js"></script>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/style.css">
   <link rel="shortcut icon" type="image" href="assets/Encantiva_favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

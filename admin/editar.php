@@ -1,5 +1,5 @@
 <?php
-include 'conexao.php'; // Inclui a conexão mysqli
+include '../conexao.php';
 
 // 1. Verificar ID do Pedido
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {

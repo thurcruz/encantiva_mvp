@@ -1,5 +1,5 @@
 <?php
-include('conexao.php');
+include '../conexao.php';
 
 if (!isset($_GET['id_pedido']) || empty($_GET['id_pedido'])) {
     header('Location: gestor.php?erro=id_invalido');

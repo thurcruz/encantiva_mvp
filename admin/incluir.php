@@ -1,6 +1,6 @@
 <?php
 // incluir.php - inserir novo pedido com adicionais (se fornecidos)
-include 'conexao.php'; // $conexao = new mysqli(...)
+include '../conexao.php';
 
 // REDIRECIONA SE CONEXAO COM ERRO
 if ($conn->connect_errno) {
