@@ -4,13 +4,14 @@ include 'conexao.php';
 session_start();
 
 // Verifica se o usuário está logado
-if (!isset($_SESSION['id_usuario'])) {
+if (!isset($_SESSION['usuario_id'])) {
     header('Location: login.php');
     exit();
 }
 
-$id_usuario = $_SESSION['id_usuario'];
-$nome_usuario = $_SESSION['nome'];
+// CORREÇÃO: Usar as variáveis de sessão corretas
+$id_usuario = $_SESSION['usuario_id'];
+$nome_usuario = $_SESSION['usuario_nome'];
 $pedidos = [];
 $mensagem = '';
 
@@ -57,7 +58,6 @@ if ($stmt) {
         .confirmado { background-color: #90f; }
         .finalizado { background-color: #0c9; }
         .cancelado { background-color: #f50c33; }
-        /* Adicione outras classes de status se necessário */
     </style>
 </head>
 <body>

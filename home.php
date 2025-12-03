@@ -1,5 +1,5 @@
 <?php
-// home.php
+// home.php (Shell principal da aplicação SPA)
 session_start();
 
 // Redireciona para login se não estiver autenticado
@@ -8,19 +8,16 @@ if (!isset($_SESSION['usuario_id'])) {
     exit();
 }
 
-$nome_usuario = $_SESSION['usuario_nome'] ?? 'Cliente'; // Obtém o nome da sessão
+$nome_usuario = $_SESSION['usuario_nome'] ?? 'Cliente'; 
 ?>
-
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Encantiva</title>
+  <title>Encantiva - Seu Pedido</title>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="js/script.js"></script>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css"> 
   <link rel="shortcut icon" type="image" href="assets/Encantiva_favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,6 +38,12 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Cliente'; // Obtém o nome da sess
         margin: 0;
         font-weight: 600;
         color: var(--color-purple-dark);
+    }
+    /* Estilos para garantir que o container da tela ocupe o espaço */
+    #content-container {
+        display: flex;
+        flex-direction: column;
+        min-height: 80vh;
     }
   </style>
 </head>
@@ -63,275 +66,8 @@ $nome_usuario = $_SESSION['usuario_nome'] ?? 'Cliente'; // Obtém o nome da sess
   <span id="mensagemErro"></span>
 </div>
 
-<main>
-  <section id="tela1" class="tela ativa">
-    <img src="assets/logo_horizontal.svg" alt="Logo Encantiva">
-    <h2>Seja bem-vindo!</h2>
-    <p>Clique em <strong>“Vamos começar“</strong> e monte sua festa em menos de 10 minutos.</p>
-    <div class="buttons_home">
-      <button class="btn btn-primary" onclick="proximaTela(2)">Vamos começar</button>
-      
-      <button class="btn btn-secondary" onclick="window.location.href='perfil.php'">Meus Pedidos / Perfil</button>
-      
-      <button class="btn btn-secondary" onclick="window.location.href='tutorial.html'">Veja como funciona</button>
-      <button class="btn btn-secondary" onclick="window.open('https://wa.me/5521960147831', '_blank')">Fale com a gente!</button>
-    </div>
-  </section>
+<main id="content-container">
+  </main>
 
-  <section id="tela2" class="tela">
-    <img src="assets/logo_horizontal.svg" alt="Logo Encantiva">
-    <h2>O que vamos realizar?</h2>
-    <p>Selecione o tipo de festa:</p>
-    <div class="grid-radios-type">
-      <label><input type="radio" name="tipoFesta" value="Aniversário"> Aniversário</label>
-      <label><input type="radio" name="tipoFesta" value="XV Anos"> XV Anos</label>
-      <label><input type="radio" name="tipoFesta" value="Bodas"> Bodas</label>
-      <label><input type="radio" name="tipoFesta" value="Mêsversário"> Mêsversário</label>
-      <label><input type="radio" name="tipoFesta" value="Chá de Bebê"> Chá de Bebê</label>
-      <label><input type="radio" name="tipoFesta" value="Chá Revelação"> Chá Revelação</label>
-      <label><input type="radio" name="tipoFesta" value="Batizado"> Batizado</label>
-      <label><input type="radio" name="tipoFesta" value="Outro"> Outro</label>
-    </div>
-    <div class="buttons">
-      <button class="btn btn-primary" onclick="proximaTela(3)">Próximo</button>
-      <button class="btn btn-secondary" onclick="voltarTela(1)">Voltar</button>
-    </div>
-  </section>
-
-  <section id="tela3" class="tela">
-    <img src="assets/logo_horizontal.svg" alt="Logo Encantiva">
-    <h2>Qual será o tema da festa?</h2>
-    <p>Veja os temas disponíveis:</p>
-    
-    <div class="select-busca">
-      <input type="text" id="pesquisaTema" class="input-padrao" placeholder="Pesquisar tema..." 
-      onclick="mostrarTemas()" oninput="filtrarTemas()">
-      <div id="listaTemas" class="hidden"></div>
-
-      <h2>Outro?</h2>
-      <label class="label-temaOutro">
-        <input type="checkbox" id="temaOutro" onchange="ativarTemaOutro()">
-        Não achou o seu tema?
-      </label>
-      <input type="text" id="novoTema" class="input-padrao" placeholder="Digite seu tema" style="display:none;">
-    </div>
-
-    <h5 class="obs"> Caso selecione a opção “Outro”, informe o tema  desejado para verificarmos a disponibilidade e retornarmos o contato.</h5>
-
-
-    <div class="buttons">
-      <button class="btn btn-primary" onclick="proximaTela(4)">Próximo</button>
-      <button class="btn btn-secondary" onclick="voltarTela(2)">Voltar</button>
-    </div>
-  </section>
-
-  <section id="tela4" class="tela">
-    <img src="assets/logo_horizontal.svg" alt="Logo Encantiva">
-    <h2>Quem está comemorando?</h2>
-    <p>Dados do(s) homenageado(s)</p>
-    <input type="text" id="nomeHomenageado" class="input-padrao" placeholder="Nome do homenageado">
-    <input type="number" id="idadeHomenageado" class="input-padrao" placeholder="Idade (se aplicável)">
-    
-    <h5 class="obs"> Insira mais de um homenageado se necessário.</h5>
-    
-    <div class="buttons">
-      <button class="btn btn-primary" onclick="proximaTela(5)">Próximo</button>
-      <button class="btn btn-secondary" onclick="voltarTela(3)">Voltar</button>
-    </div>
-  </section>
-
-  <section id="tela5" class="tela">
-    <img src="assets/logo_horizontal.svg" alt="Logo Encantiva"> 
-    <h2>Qual será o dia do evento?</h2> 
-    <p>Escolha a data</p> 
-    <input type="text" id="dataFesta" placeholder="Selecione a data">
-    
-    <h5 class="obs"> Os pedidos são feitos com 7 dias de antecência. Em caso de urgência <a class="link_contato" href="'https://wa.me/5521960147831', '_blank'">Fale com a gente!</a> 
-      .</h5>
-
-    <div class="buttons">
-      <button class="btn btn-primary" onclick="proximaTela(6)">Próximo</button>
-      <button class="btn btn-secondary" onclick="voltarTela(4)">Voltar</button>
-    </div>
-  </section>
-
-  <section id="tela6" class="tela">
-    <img src="assets/logo_horizontal.svg" alt="Logo Encantiva">
-    <h2>Escolha o tamanho da festa</h2>
-    <div class="cards-tamanhos">
-      <div class="card-tamanho" id="festa-mesa" onclick="selecionarTamanho(0)">
-        <h3>Festa na Mesa</h3>
-        <p>Perfeito para pequenas comemorações</p>
-      </div>
-      <div class="card-tamanho" id="festao">
-        <span class="badge-em-breve">EM BREVE</span>
-      <div class="card-tamanho_desativado">
-        <h3>Festão</h3>
-        <p>Grande festa com muitos detalhes</p>
-      </div>
-    </div>
-  </div>
-
-      </div> <div class="buttons"> 
-        <button class="btn btn-primary" onclick="proximaTela(7)">Próximo</button> 
-        <button class="btn btn-secondary" onclick="voltarTela(5)">Voltar</button> 
-      </div>
-  </section>
-
-  <section id="tela7" class="tela">
-    <img src="assets/logo_horizontal.svg" alt="Logo Encantiva"> 
-    <h2>Escolha seu combo</h2> 
-    <p>Selecione de acordo com a sua preferência:</p> 
-    <div class="mesa-container"> 
-        <div class="mesa-info"> 
-          <span id="mesa-label">Adicionar mesa (+R$10)</span> 
-          <span id="desc-mesa">Obs: Os valores do combo abaixo não inclui mesa!</span> 
-        </div> 
-        <div id="switch" onclick="toggleMesa()"> 
-          <button></button> 
-          <span></span> 
-        </div> 
-    </div> 
-      
-      <div class="cards-wrapper"> 
-      <div class="cards-combos" id="cardsCombos"> 
-        <div class="card-combo" id="combo-essencial" onclick="selecionarCombo(0)"> 
-        <h3 class="combo-nome">Essencial</h3> 
-        <div class="combo-itens"> 
-          <h4 class="item">Inclui:</h4> 
-          <p class="item">1 Mini painel redondo</p> 
-          <p class="item">1 Boleira</p> 
-          <p class="item">3 Bandeijas</p> 
-          <p class="item">1 Jarro c/ flores</p> 
-          <p class="item">1 Totem</p>
-        </div>
-        
-        <p class="valor" id="valor-essencial">R$ 39,90</p> 
-      
-      </div> <div class="card-combo" id="combo-fantastico" onclick="selecionarCombo(1)"> 
-        <h3 class="combo-nome">Fantástico</h3> <div class="combo-itens"> 
-          <h4 class="item">Inclui:</h4> 
-          <p class="item">1 Mini painel redondo</p>
-          <p class="item">1 Boleira</p> 
-          <p class="item">6 Bandeijas</p> 
-          <p class="item">1 Jarro c/ flores</p> 
-          <p class="item">2 Totens</p> 
-          <p class="item">1 Escada</p> 
-          <p class="item">1 Bola Transversal</p> 
-        </div> 
-        
-        <p class="valor" id="valor-fantastico">R$ 59,90</p> 
-      
-      </div> <div class="card-combo" id="combo-inesquecivel" onclick="selecionarCombo(2)"> 
-        <h3 class="combo-nome">Inesquecível</h3> 
-        <div class="combo-itens"> 
-          <h4 class="item">Inclui:</h4> 
-          <p class="item">1 painel redondo</p> 
-          <p class="item">1 painel romano</p> 
-          <p class="item">1 Boleira</p> 
-          <p class="item">8 Bandeijas</p> 
-          <p class="item">2 Jarro c/ flores</p> 
-          <p class="item">3 Totens</p>
-          <p class="item">1 Escada</p> 
-          <p class="item">Mesa secundária</p> 
-          <p class="item">1 Escada</p>
-          <p class="item">1 Bola Transversal</p> 
-          </div> 
-           <p class="valor" id="valor-inesquecivel">R$ 109,90</p> 
-          </div> 
-        </div> 
-      
-      </div> <div class="scroll-buttons"> 
-        <button class="scroll-btn" id="scroll-left" onclick="scrollCards(-1)"> 
-          <img src="assets/left-arrow.svg" alt="Esquerda"> 
-        </button> <button class="scroll-btn" id="scroll-right" onclick="scrollCards(1)"> 
-          <img src="assets/right-arrow.svg" alt="Direita"> </button> 
-        
-        </div> 
-        <h5 class="obs"> Obs: Para mudança de algum intem deve solicitar no WhatsApp depois de confirmar o pedido.</h5>
-        <div class="containerValorTotal"> 
-          
-          <div class="Total">Total:</div> 
-          <div id="valorTotal">R$ 0,00</div> 
-        </div> <div class="buttons"> 
-          
-      </div> <div class="buttons"> 
-        <button class="btn btn-primary" onclick="proximaTela(8)">Próximo</button> 
-        <button class="btn btn-secondary" onclick="voltarTela(6)">Voltar</button> 
-      </div>
-  </section>
-
-  <section id="tela8" class="tela"> 
-  <img src="assets/logo_horizontal.svg" alt="Logo Encantiva"> 
-  <h2>Adicionais</h2> 
-  <p>Selecione os adicionais desejados:</p> 
-      <div class="adicionais-button"> 
-        <div class="adicionais-info"> 
-          <span id="adicionais-label"></span> 
-          <span id="desc-adicionais">Obs: Desative caso deseje só a decoração da festa!</span> 
-        </div> 
-        <div id="switchAdicionais" onclick="toggleAdicionais()"> 
-          <button></button> 
-          <span></span> 
-        </div> 
-    </div> 
-
-  <div id="adicionaisContainer" class="adicionais-container"> </div> 
-
-   <h5 class="obs"> Clique no " + " para adicionar a quantidade de porções que desejar.
-    Clique no " - " para Retirar a quantidade de porções selecionadas.
-   </h5>
-  <div class="containerValorTotal"> 
-    <div class="Total">Total:</div> 
-    <div id="totalAdicionais"></div> 
-  </div>
-
-  <div class="buttons"> 
-    <button class="btn btn-primary" onclick="proximaTela(9)">Próximo</button> 
-    <button class="btn btn-secondary" onclick="voltarTela(7)">Voltar</button> 
-  </div>
-</section>
-
-  <section id="tela9" class="tela">
-      <img src="assets/logo_horizontal.svg" alt="Logo Encantiva"> 
-      <h2>Seus dados</h2> 
-      <p>Insira suas informações para contato:</p> 
-    
-      <input type="text" id="nomeCliente" class="input-padrao" placeholder="Seu nome completo"> 
-      <input type="tel" id="telefoneCliente" class="input-padrao" placeholder="Telefone (WhatsApp)"> 
-    
-      <h2>Forma de Pagamento</h2> <p>Escolha como deseja pagar:</p> 
-      <div class="grid-radios-pay"> 
-        <label>
-          <input type="radio" name="formaPagamento" value="Pix"> Pix
-        </label> 
-        <label>
-          <input type="radio" name="formaPagamento" value="Dinheiro"> Dinheiro
-        </label> 
-          <label>
-            <input type="radio" name="formaPagamento" value="Cartão de Crédito"> Cartão de Crédito/Débito
-          </label> 
-      </div> 
-        
-     <div class="buttons"> 
-        <button class="btn btn-primary" onclick="proximaTela(10);gerarResumo();">Próximo</button> 
-        <button class="btn btn-secondary" onclick="voltarTela(8)">Voltar</button> 
-      </div>
-  </section>
-
-  <section id="tela10" class="tela">
-    <img src="assets/logo_horizontal.svg" alt="Logo Encantiva">
-    <h2>Resumo do Pedido</h2>
-    <div id="resumo"></div>
-  <div id="pagamentoResumo"></div>
-    <div class="buttons">
-      <button class="btn btn-primary" onclick="enviarPedido()">Finalizar Pedido</button>
-      <button class="btn btn-secondary" onclick="voltarTela(9)">Voltar</button>
-    </div>
-  </section>
-</main>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
-<script src="js/script.js"></script>
 </body>
 </html>

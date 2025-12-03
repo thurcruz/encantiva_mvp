@@ -20,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $mensagem_erro = 'Preencha todos os campos.';
     } else {
         // Usa Prepared Statements para segurança
+        // NOTA: A tabela usuarios deve usar password_hash e este login deve usar password_verify
         $sql = "SELECT id_usuario, nome, email, senha FROM usuarios WHERE email = ?";
         $stmt = $conn->prepare($sql);
         
@@ -29,14 +30,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $resultado = $stmt->get_result();
             
             if ($usuario = $resultado->fetch_assoc()) {
-                // Verificar a senha. Usamos password_verify se a senha foi salva com hash.
-                // Se sua tabela 'usuarios' salva senhas em texto puro (NÃO RECOMENDADO!), use $senha_digitada == $usuario['senha']
-                
-                // Exemplo com hash (seguro):
+                // VERIFICAÇÃO DE SENHA: USANDO HASHES (RECOMENDADO)
                 // if (password_verify($senha_digitada, $usuario['senha'])) { 
-
-                // Exemplo com texto puro (INSEGURO, mas pode ser necessário dependendo da sua tabela):
-                if ($senha_digitada === $usuario['senha']) {
+                
+                // VERIFICAÇÃO DE SENHA: USANDO TEXTO PURO (SE SUA TABELA AINDA NÃO TEM HASH)
+                if ($senha_digitada === $usuario['senha']) { 
                     
                     // Login bem-sucedido: Salva dados na sessão e redireciona
                     $_SESSION['usuario_id'] = $usuario['id_usuario'];
@@ -109,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <input type="password" name="senha" class="input-padrao" placeholder="Senha" required>
             <button type="submit" class="btn btn-primary">Entrar</button>
         </form>
-        <p style="margin-top: 15px;">Ainda não tem conta? <a href="#">Cadastre-se</a></p>
+        <p style="margin-top: 15px;">Ainda não tem conta? <a href="cadastro.php">Cadastre-se</a></p>
     </div>
 </div>
 
