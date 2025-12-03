@@ -8,7 +8,7 @@ if (!isset($_SESSION['usuario_id'])) {
     exit();
 }
 
-// O restante do conteúdo HTML (antigo index.html)
+$nome_usuario = $_SESSION['usuario_nome'] ?? 'Cliente'; // Obtém o nome da sessão
 ?>
 
 
@@ -19,46 +19,65 @@ if (!isset($_SESSION['usuario_id'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Encantiva</title>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
-  <script src="script.js"></script>
+  <script src="js/script.js"></script>
   <link rel="stylesheet" href="css/style.css">
   <link rel="shortcut icon" type="image" href="assets/Encantiva_favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <style>
+    /* Estilos para o cabeçalho de boas-vindas */
+    .welcome-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        background-color: var(--color-purple-light);
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    .welcome-header p {
+        margin: 0;
+        font-weight: 600;
+        color: var(--color-purple-dark);
+    }
+  </style>
 </head>
 <body>
+
+<div class="welcome-header">
+    <p>Olá, <?php echo htmlspecialchars($nome_usuario); ?>!</p>
+    <a href="logout.php" class="btn btn-secondary" style="height: 35px; width: auto; padding: 0 10px; font-size: 14px;">Sair</a>
+</div>
 
 <div class="imagem-fixa"></div>
 <div class="tela"></div>
 
-<!-- Barra de progresso -->
 <div class="progress-bar">
   <div id="progress"></div>
 </div>
 
-<!-- Notificação -->
 <div id="notificacao" class="notificacao">
   <img src="assets/c-warning@4x.png" alt="info" class="icone">
   <span id="mensagemErro"></span>
 </div>
 
 <main>
-  <!-- Tela 1: Início -->
   <section id="tela1" class="tela ativa">
     <img src="assets/logo_horizontal.svg" alt="Logo Encantiva">
     <h2>Seja bem-vindo!</h2>
     <p>Clique em <strong>“Vamos começar“</strong> e monte sua festa em menos de 10 minutos.</p>
     <div class="buttons_home">
       <button class="btn btn-primary" onclick="proximaTela(2)">Vamos começar</button>
+      
+      <button class="btn btn-secondary" onclick="window.location.href='perfil.php'">Meus Pedidos / Perfil</button>
+      
       <button class="btn btn-secondary" onclick="window.location.href='tutorial.html'">Veja como funciona</button>
-      <!--<button class="btn btn-secondary" onclick="window.location.href='catalogo.html'">Acesse nosso catálogo</button>-->
       <button class="btn btn-secondary" onclick="window.open('https://wa.me/5521960147831', '_blank')">Fale com a gente!</button>
     </div>
   </section>
 
-  <!-- Tela 2: Ocasião -->
   <section id="tela2" class="tela">
     <img src="assets/logo_horizontal.svg" alt="Logo Encantiva">
     <h2>O que vamos realizar?</h2>
@@ -79,7 +98,6 @@ if (!isset($_SESSION['usuario_id'])) {
     </div>
   </section>
 
-  <!-- Tela 3: Tema -->
   <section id="tela3" class="tela">
     <img src="assets/logo_horizontal.svg" alt="Logo Encantiva">
     <h2>Qual será o tema da festa?</h2>
@@ -107,7 +125,6 @@ if (!isset($_SESSION['usuario_id'])) {
     </div>
   </section>
 
-  <!-- Tela 4: Homenageado -->
   <section id="tela4" class="tela">
     <img src="assets/logo_horizontal.svg" alt="Logo Encantiva">
     <h2>Quem está comemorando?</h2>
@@ -123,7 +140,6 @@ if (!isset($_SESSION['usuario_id'])) {
     </div>
   </section>
 
-  <!-- Tela 5: Data -->
   <section id="tela5" class="tela">
     <img src="assets/logo_horizontal.svg" alt="Logo Encantiva"> 
     <h2>Qual será o dia do evento?</h2> 
@@ -139,7 +155,6 @@ if (!isset($_SESSION['usuario_id'])) {
     </div>
   </section>
 
-  <!-- Tela 6: Tamanho -->
   <section id="tela6" class="tela">
     <img src="assets/logo_horizontal.svg" alt="Logo Encantiva">
     <h2>Escolha o tamanho da festa</h2>
@@ -148,8 +163,7 @@ if (!isset($_SESSION['usuario_id'])) {
         <h3>Festa na Mesa</h3>
         <p>Perfeito para pequenas comemorações</p>
       </div>
-      <!-- Festão (desativado, com badge EM BREVE) -->
-    <div class="card-tamanho" id="festao">
+      <div class="card-tamanho" id="festao">
         <span class="badge-em-breve">EM BREVE</span>
       <div class="card-tamanho_desativado">
         <h3>Festão</h3>
@@ -164,7 +178,6 @@ if (!isset($_SESSION['usuario_id'])) {
       </div>
   </section>
 
-  <!-- Tela 7: Combo -->
   <section id="tela7" class="tela">
     <img src="assets/logo_horizontal.svg" alt="Logo Encantiva"> 
     <h2>Escolha seu combo</h2> 
@@ -180,11 +193,9 @@ if (!isset($_SESSION['usuario_id'])) {
         </div> 
     </div> 
       
-      <!-- Container dos cards --> 
       <div class="cards-wrapper"> 
       <div class="cards-combos" id="cardsCombos"> 
-        <!-- Card Essencial --> 
-      <div class="card-combo" id="combo-essencial" onclick="selecionarCombo(0)"> 
+        <div class="card-combo" id="combo-essencial" onclick="selecionarCombo(0)"> 
         <h3 class="combo-nome">Essencial</h3> 
         <div class="combo-itens"> 
           <h4 class="item">Inclui:</h4> 
@@ -194,18 +205,10 @@ if (!isset($_SESSION['usuario_id'])) {
           <p class="item">1 Jarro c/ flores</p> 
           <p class="item">1 Totem</p>
         </div>
-        <!--
-        <div class="itens-promoção">
-          <h4 class="item">Brinde:</h4>
-          <p class="item">10% de desconto</p> 
-          <p class="item">Convite Interativo</p> 
-        </div>
-      -->
         
         <p class="valor" id="valor-essencial">R$ 39,90</p> 
       
-      </div> <!-- Card Fantástico --> 
-      <div class="card-combo" id="combo-fantastico" onclick="selecionarCombo(1)"> 
+      </div> <div class="card-combo" id="combo-fantastico" onclick="selecionarCombo(1)"> 
         <h3 class="combo-nome">Fantástico</h3> <div class="combo-itens"> 
           <h4 class="item">Inclui:</h4> 
           <p class="item">1 Mini painel redondo</p>
@@ -216,16 +219,10 @@ if (!isset($_SESSION['usuario_id'])) {
           <p class="item">1 Escada</p> 
           <p class="item">1 Bola Transversal</p> 
         </div> 
-        <!--<div class="itens-promoção">
-          <h4 class="item">Brinde:</h4>
-          <p class="item">20 Docinhos Simples</p> 
-          <p class="item">6 Cupcakes</p> 
-        </div>-->
         
         <p class="valor" id="valor-fantastico">R$ 59,90</p> 
       
-      </div> <!-- Card Inesquecível -->
-      <div class="card-combo" id="combo-inesquecivel" onclick="selecionarCombo(2)"> 
+      </div> <div class="card-combo" id="combo-inesquecivel" onclick="selecionarCombo(2)"> 
         <h3 class="combo-nome">Inesquecível</h3> 
         <div class="combo-itens"> 
           <h4 class="item">Inclui:</h4> 
@@ -240,18 +237,11 @@ if (!isset($_SESSION['usuario_id'])) {
           <p class="item">1 Escada</p>
           <p class="item">1 Bola Transversal</p> 
           </div> 
-          <!--<div class="itens-promoção">
-          <h4 class="item">Brinde:</h4>
-          <p class="item">15% de desconto</p>
-          <p class="item">20 Docinhos Simples</p> 
-          <p class="item">6 Cupcakes</p>  
-          </div>-->
            <p class="valor" id="valor-inesquecivel">R$ 109,90</p> 
           </div> 
         </div> 
       
-      </div> <!-- Botões de scroll --> 
-      <div class="scroll-buttons"> 
+      </div> <div class="scroll-buttons"> 
         <button class="scroll-btn" id="scroll-left" onclick="scrollCards(-1)"> 
           <img src="assets/left-arrow.svg" alt="Esquerda"> 
         </button> <button class="scroll-btn" id="scroll-right" onclick="scrollCards(1)"> 
@@ -271,8 +261,7 @@ if (!isset($_SESSION['usuario_id'])) {
       </div>
   </section>
 
-  <!-- Tela 8: Adicionais -->
- <section id="tela8" class="tela"> 
+  <section id="tela8" class="tela"> 
   <img src="assets/logo_horizontal.svg" alt="Logo Encantiva"> 
   <h2>Adicionais</h2> 
   <p>Selecione os adicionais desejados:</p> 
@@ -303,7 +292,6 @@ if (!isset($_SESSION['usuario_id'])) {
   </div>
 </section>
 
-  <!-- Tela 9: Dados -->
   <section id="tela9" class="tela">
       <img src="assets/logo_horizontal.svg" alt="Logo Encantiva"> 
       <h2>Seus dados</h2> 
@@ -331,22 +319,19 @@ if (!isset($_SESSION['usuario_id'])) {
       </div>
   </section>
 
-  <!-- Tela 10: Resumo -->
   <section id="tela10" class="tela">
     <img src="assets/logo_horizontal.svg" alt="Logo Encantiva">
     <h2>Resumo do Pedido</h2>
     <div id="resumo"></div>
-  <!-- Área dinâmica do pagamento -->
-    <div id="pagamentoResumo"></div>
+  <div id="pagamentoResumo"></div>
     <div class="buttons">
       <button class="btn btn-primary" onclick="enviarPedido()">Finalizar Pedido</button>
       <button class="btn btn-secondary" onclick="voltarTela(9)">Voltar</button>
     </div>
   </section>
 </main>
-<!-- JS do Flatpickr -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-<script src="script.js"></script>
+<script src="js/script.js"></script>
 </body>
 </html>

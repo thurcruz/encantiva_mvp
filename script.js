@@ -431,46 +431,47 @@ function atualizarValorTotal() {
 // ==========================================
 // Função unificada para resumo e WhatsApp
 // ==========================================
+
 function getResumoPedido() {
   const nome = document.getElementById("nomeCliente")?.value || "";
   const telefone = document.getElementById("telefoneCliente")?.value || "";
-  const tipo = document.querySelector('input[name="tipoFesta"]:checked')?.value || "";
-  const temaOutro = document.getElementById("temaOutro")?.checked;
-  const tema = temaOutro ? document.getElementById("novoTema").value : document.getElementById("pesquisaTema").value;
-  const homenageado = document.getElementById("nomeHomenageado")?.value || "";
-  const idade = document.getElementById("idadeHomenageado")?.value || "";
+  // ... (outras variáveis) ...
   const data = document.getElementById("dataFesta")?.value || "";
-  const formaPagamento = document.querySelector('input[name="formaPagamento"]:checked')?.value || "";
+  // ... (outras variáveis) ...
 
+  // Converte a data de 'dd/mm/yyyy' para 'yyyy-mm-dd' (formato SQL)
+  const dataParts = data.split('/');
+  const dataFestaSQL = dataParts.length === 3 ? `${dataParts[2]}-${dataParts[1]}-${dataParts[0]}` : null; 
+
+  // Mapeia adicionais para um formato de objeto que o PHP consegue ler
   const adicionaisSelecionados = adicionais
   .map((item, i) => {
     const qtd = quantidadesAdicionais[i] || 0;
     if (qtd > 0) {
-      const subtotal = (qtd * item.valor).toFixed(2);
-      return `${item.nome} - ${qtd} porções`;
+      // Retorna o objeto completo para envio ao PHP
+      return { nome: item.nome, quantidade: qtd, valor: item.valor };
     }
     return null;
   })
-  .filter(Boolean)
-  .join(", ") || "Nenhum";
+  .filter(Boolean);
 
+  // String formatada para o resumo visual (Tela 10)
+  const adicionaisParaResumo = adicionaisSelecionados
+    .map(item => `${item.quantidade}x ${item.nome}`)
+    .join(", ") || "Nenhum";
 
-  let comboInfo = "Nenhum";
-  if (comboSelecionado !== null) {
-    const card = document.querySelectorAll('#tela7 .card-combo')[comboSelecionado];
-    const nomeCombo = card.querySelector('.combo-nome').textContent;
-    comboInfo = nomeCombo;
-  }
-
-  const mesaInfo = mesaAtivada ? "Com mesa (+R$10)" : "Sem mesa";
-  const tamanho = tamanhoSelecionado === 0 ? "Festa na Mesa" : tamanhoSelecionado === 1 ? "Festão" : "Não selecionado";
-  const valorTotal = atualizarValorTotal();
+  // ... (cálculo de combo, mesa, valorTotal) ...
 
   return {
-    nome, telefone, tipo, tema, homenageado, idade, data,
-    formaPagamento, comboInfo, mesaInfo, tamanho, adicionaisSelecionados, valorTotal
+    nome, telefone, tipo, tema, homenageado, idade, data, 
+    data_evento_sql: dataFestaSQL, // <--- ADICIONADO PARA O PHP
+    formaPagamento, comboInfo, mesaInfo, tamanho, 
+    adicionais: adicionaisSelecionados, // <--- LISTA DE OBJETOS PARA O PHP
+    adicionaisParaResumo, 
+    valorTotal
   };
 }
+
 
 function gerarResumo() {
   const resumo = getResumoPedido();
@@ -552,72 +553,46 @@ function enviarWhatsApp() {
   window.open(url, "_blank");
 }
 
+// ... dentro de script.js
+
+// ... (A função enviarWhatsApp é necessária, adapte-a se necessário, usando o novo ID do pedido)
+
 async function enviarPedido() {
-    // 1. Coleta e formata os dados
+    // 1. Coleta os dados do pedido (já inclui a data SQL)
     const resumo = getResumoPedido();
-    // Converte a data de 'dd/mm/yyyy' para 'yyyy-mm-dd' (formato SQL)
-    const dataParts = resumo.data.split('/');
-    const dataFestaSQL = `${dataParts[2]}-${dataParts[1]}-${dataParts[0]}`; 
-    
-    const dadosPedido = {
-        nome_cliente: resumo.nome,
-        telefone: resumo.telefone,
-        tipo_festa: resumo.tipo,
-        tema: resumo.tema,
-        nome_homenageado: resumo.homenageado,
-        idade_homenageado: resumo.idade ? parseInt(resumo.idade) : null,
-        data_evento: dataFestaSQL, 
-        tamanho_festa: resumo.tamanho,
-        combo_selecionado: resumo.comboInfo,
-        inclui_mesa: resumo.mesaInfo.includes("Com mesa") ? true : false,
-        forma_pagamento: resumo.formaPagamento,
-        valor_total: resumo.valorTotal, 
-        status: 'Aguardando Contato' 
-    };
 
     try {
-        // 2. Insere na tabela 'pedidos'
-        const { data: pedidoInserido, error: pedidoError } = await supabaseClient // 🎯 USANDO supabaseClient
-            .from('pedidos')
-            .insert([dadosPedido])
-            .select('id_pedido')
-            .single();
+        // 2. Envia os dados para o endpoint PHP (salvar_pedido.php)
+        const response = await fetch('salvar_pedido.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            // Converte o objeto resumo em uma string JSON
+            body: JSON.stringify(resumo) 
+        });
 
-        if (pedidoError) throw pedidoError;
+        const result = await response.json();
 
-        const idPedido = pedidoInserido.id_pedido;
+        if (result.success) {
+            const idPedido = result.id_pedido;
+            
+            // 3. Se tudo deu certo no PHP, notifica e envia para o WhatsApp
+            alert(`Pedido #${idPedido} criado com sucesso! Enviando para o WhatsApp para confirmação...`);
+            enviarWhatsApp(resumo, idPedido);
 
-        // 3. Prepara e insere os adicionais (se houver)
-        const adicionaisParaInserir = adicionais
-            .map((item, i) => {
-                const qtd = quantidadesAdicionais[i] || 0;
-                if (qtd > 0) {
-                    return {
-                        id_pedido: idPedido,
-                        nome_adicional: item.nome,
-                        quantidade: qtd,
-                        valor_unidade: item.valor,
-                    };
-                }
-                return null;
-            })
-            .filter(Boolean);
+            // Redireciona para a tela de pedidos do usuário
+            window.location.href = 'perfil.php';
 
-        if (adicionaisParaInserir.length > 0) {
-            const { error: adicionaisError } = await supabaseClient // 🎯 USANDO supabaseClient
-                .from('pedidos_adicionais')
-                .insert(adicionaisParaInserir);
-
-            if (adicionaisError) throw adicionaisError;
+        } else {
+            // 4. Trata erro do servidor
+            console.error('Erro ao salvar pedido:', result.message);
+            alert('Erro ao finalizar pedido. Por favor, tente novamente ou fale conosco. Detalhe: ' + result.message);
         }
 
-        // 4. Se tudo deu certo, envia para o WhatsApp
-        alert(`Pedido #${idPedido} salvo no Supabase! Enviando para o WhatsApp para confirmação...`);
-        enviarWhatsApp(); 
-
     } catch (error) {
-        // Mostra um erro amigável se a inserção falhar (ex: RLS não configurado)
-        console.error('Erro ao enviar pedido para o Supabase:', error.message);
-        alert('Erro ao enviar pedido. Verifique se o RLS está configurado no Supabase para a tabela "pedidos".');
+        // Trata erro de rede/conexão
+        console.error('Erro de rede/JSON:', error);
+        alert('Erro de comunicação. Verifique sua conexão ou tente novamente.');
     }
 }
