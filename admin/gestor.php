@@ -1,5 +1,14 @@
 <?php
 include '../conexao.php';
+session_start();
+
+// Proteção para o painel de administrador
+if (!isset($_SESSION['admin_id'])) {
+    header('Location: ../admin_login.php');
+    exit();
+}
+
+// ... (Restante do gestor.php) ...
 
 // Verifica se houve erro na conexão (já verificado no conexao.php, mas para segurança)
 if ($conn->connect_errno) {
@@ -7,7 +16,7 @@ if ($conn->connect_errno) {
     $pedidos = [];
 } else {
     // 1. Lógica de Consulta (READ)
-    $sql = "SELECT id_pedido, data_criacao, nome_cliente, telefone, tema, data_evento, combo_selecionado, valor_total, status 
+    $sql = "SELECT id_pedido, data_criacao, nome_cliente, telefone, id_tema, data_evento, combo_selecionado, valor_total, status 
             FROM pedidos 
             ORDER BY data_criacao DESC";
     
@@ -147,7 +156,7 @@ if ($conn->connect_errno) {
         <?php echo htmlspecialchars($pedido['nome_cliente']); ?><br>
         <small><?php echo htmlspecialchars($pedido['telefone']); ?></small>
     </td>
-    <td><?php echo htmlspecialchars($pedido['tema']); ?></td>
+    <td><?php echo htmlspecialchars($pedido['id_tema']); ?></td>
     <td><?php echo date('d/m/Y', strtotime($pedido['data_evento'])); ?></td>
     <td><?php echo htmlspecialchars($pedido['combo_selecionado']); ?></td>
     <td>R$ <?php echo number_format($pedido['valor_total'], 2, ',', '.'); ?></td>

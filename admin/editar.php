@@ -122,7 +122,7 @@ if ($stmt) {
                 
                 <div class="detalhe-item">
                     <h3>Detalhes da Festa</h3>
-                    <p><strong>Festa:</strong> <?php echo htmlspecialchars($pedido['tipo_festa']); ?> | <strong>Tema:</strong> <?php echo htmlspecialchars($pedido['tema']); ?></p>
+                    <p><strong>Festa:</strong> <?php echo htmlspecialchars($pedido['tipo_festa']); ?> | <strong>Tema:</strong> <?php echo htmlspecialchars($pedido['id_tema']); ?></p>
                     <p><strong>Homenageado:</strong> <?php echo htmlspecialchars($pedido['nome_homenageado']); ?> (<?php echo htmlspecialchars($pedido['idade_homenageado']); ?> anos)</p>
                     <p><strong>Combo:</strong> <?php echo htmlspecialchars($pedido['combo_selecionado']); ?> <?php echo $pedido['inclui_mesa'] ? ' (Inclui Mesa + R$ 10)' : ''; ?></p>
                     <p><strong>Total:</strong> R$ <?php echo number_format($pedido['valor_total'], 2, ',', '.'); ?> | <strong>Pagamento:</strong> <?php echo htmlspecialchars($pedido['forma_pagamento']); ?></p>

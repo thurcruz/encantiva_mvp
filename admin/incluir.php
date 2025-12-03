@@ -1,6 +1,7 @@
 <?php
-// incluir.php - inserir novo pedido com adicionais (se fornecidos)
-include '../conexao.php';
+// admin/incluir.php - inserir novo pedido com adicionais (se fornecidos)
+include '../conexao.php'; // Inclui a conexão mysqli
+$conn = $conn;
 
 // REDIRECIONA SE CONEXAO COM ERRO
 if ($conn->connect_errno) {
@@ -19,46 +20,75 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $telefone          = trim($_POST['telefone'] ?? '');
     $data_evento       = trim($_POST['data_evento'] ?? '');
     $combo_selecionado = trim($_POST['combo_selecionado'] ?? '');
-    $valor_total_raw   = str_replace(['.', ','], ['', '.'], trim($_POST['valor_total'] ?? '0')); // aceita "1.234,56" ou "1234.56"
+    $valor_total_raw   = str_replace(['.', ','], ['', '.'], trim($_POST['valor_total'] ?? '0'));
     $status            = trim($_POST['status'] ?? 'Aguardando Contato');
     $tipo_festa        = trim($_POST['tipo_festa'] ?? '');
-    $tema              = trim($_POST['tema'] ?? '');
+    $tema_input        = trim($_POST['tema'] ?? ''); // Nome do tema digitado
     $nome_homenageado  = trim($_POST['nome_homenageado'] ?? '');
     $idade_homenageado = intval($_POST['idade_homenageado'] ?? 0);
     $inclui_mesa       = isset($_POST['inclui_mesa']) ? 1 : 0;
     $forma_pagamento   = trim($_POST['forma_pagamento'] ?? '');
-    $adicionais_text   = trim($_POST['adicionais'] ?? ''); // formato livre; uma linha por item (ex: "2|Balão extra|15.50")
+    $adicionais_text   = trim($_POST['adicionais'] ?? '');
 
     $errors = [];
 
     if ($nome_cliente === '') $errors[] = 'Nome do cliente é obrigatório.';
     if ($telefone === '') $errors[] = 'Telefone é obrigatório.';
     if ($data_evento === '') $errors[] = 'Data do evento é obrigatória.';
-    // valida data (YYYY-MM-DD)
     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $data_evento)) $errors[] = 'Formato de data inválido (use AAAA-MM-DD).';
 
-    // valida valor_total
     if ($valor_total_raw === '') $valor_total_raw = '0';
     if (!is_numeric($valor_total_raw)) {
         $errors[] = 'Valor total inválido.';
     } else {
         $valor_total = number_format((float)$valor_total_raw, 2, '.', '');
     }
+    
+    // VARIÁVEIS PARA A NOVA TABELA PEDIDOS
+    $id_tema_salvar = null;
+    $tema_personalizado_salvar = null;
 
     if (count($errors) === 0) {
-        // Insere pedido com transaction
+        
+        // 1. BUSCAR ID DO TEMA (Se o tema for encontrado no catálogo)
+        if (!empty($tema_input)) {
+            $sql_busca_tema = "SELECT id_tema FROM temas WHERE nome = ? LIMIT 1";
+            $stmt_busca = $conn->prepare($sql_busca_tema);
+            
+            if ($stmt_busca) {
+                $stmt_busca->bind_param("s", $tema_input);
+                $stmt_busca->execute();
+                $res_busca = $stmt_busca->get_result();
+                
+                if ($res_busca->num_rows > 0) {
+                    $id_tema_salvar = $res_busca->fetch_assoc()['id_tema'];
+                } else {
+                    // Tema não encontrado, salva o nome como personalizado
+                    $tema_personalizado_salvar = $tema_input;
+                }
+                $stmt_busca->close();
+            } else {
+                 $tema_personalizado_salvar = $tema_input;
+            }
+        }
+        
+        // 2. INSERIR PEDIDO (com transaction)
         $conn->begin_transaction();
 
         try {
+            // CORREÇÃO: Usar as novas colunas id_tema e tema_personalizado.
+            // A coluna 'tema' foi removida.
             $sql_insert = "INSERT INTO pedidos 
-                (data_criacao, nome_cliente, telefone, data_evento, combo_selecionado, valor_total, status, tipo_festa, tema, nome_homenageado, idade_homenageado, inclui_mesa, forma_pagamento)
-                VALUES (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                (data_criacao, nome_cliente, telefone, data_evento, combo_selecionado, valor_total, status, tipo_festa, 
+                 id_tema, tema_personalizado, nome_homenageado, idade_homenageado, inclui_mesa, forma_pagamento)
+                VALUES (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             $stmt = $conn->prepare($sql_insert);
             if (!$stmt) throw new Exception("Erro ao preparar INSERT: " . $conn->error);
 
+            // Tipos: ssssdsisssiis (13 parâmetros)
             $stmt->bind_param(
-                "sssssdsssiis",
+                "ssssdsisssiis",
                 $nome_cliente,
                 $telefone,
                 $data_evento,
@@ -66,7 +96,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $valor_total,
                 $status,
                 $tipo_festa,
-                $tema,
+                $id_tema_salvar,          // NOVO: INT
+                $tema_personalizado_salvar, // NOVO: STRING
                 $nome_homenageado,
                 $idade_homenageado,
                 $inclui_mesa,
@@ -80,19 +111,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $novo_id = $stmt->insert_id;
             $stmt->close();
 
-            // Processa adicionais (se houver). Formato esperado por linha: quantidade|nome|valor
+            // 3. PROCESSAR ADICIONAIS
             if ($adicionais_text !== '') {
-                $linhas = preg_split("/\r\n|\n|\r/", $adicionais_text);
+                $linhas = preg_split("/\r\n|\n|\r/", $adicionals_text);
                 $sql_adicional = "INSERT INTO pedidos_adicionais (id_pedido, quantidade, nome_adicional, valor_unidade) VALUES (?, ?, ?, ?)";
-                $stmtAdd = $conexao->prepare($sql_adicional);
+                $stmtAdd = $conn->prepare($sql_adicional);
                 if (!$stmtAdd) throw new Exception("Erro ao preparar INSERT adicionais: " . $conn->error);
 
                 foreach ($linhas as $linha) {
                     $linha = trim($linha);
                     if ($linha === '') continue;
-                    // aceita variações separadas por | ou ; ou ,
                     $parts = preg_split("/\s*\|\s*|\s*;\s*|\s*,\s*/", $linha);
-                    // Espera pelo menos 3 partes; se faltar, tenta inferir
                     $qtd = isset($parts[0]) ? intval($parts[0]) : 1;
                     $nomeAd = isset($parts[1]) ? $parts[1] : ($parts[0] ?? 'Adicional');
                     $valorRaw = isset($parts[2]) ? str_replace(['.', ','], ['','.' ], $parts[2]) : '0';
@@ -109,7 +138,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $conn->commit();
 
-            // Redireciona para lista com parâmetro de sucesso
             header("Location: gestor.php?msg=" . urlencode("Pedido #{$novo_id} criado com sucesso"));
             exit;
         } catch (Exception $e) {
@@ -117,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = "Erro ao salvar pedido: " . $e->getMessage();
         }
     }
-} // fim POST
+}
 ?>
 
 <!DOCTYPE html>
@@ -163,7 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label for="tipo_festa">Tipo de Festa</label>
         <input id="tipo_festa" name="tipo_festa" type="text" value="<?php echo e($_POST['tipo_festa'] ?? ''); ?>">
 
-        <label for="tema">Tema</label>
+        <label for="tema">Tema (Nome Completo)</label>
         <input id="tema" name="tema" type="text" value="<?php echo e($_POST['tema'] ?? ''); ?>">
 
         <label for="nome_homenageado">Nome do Homenageado</label>
@@ -198,7 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div style="margin-top:14px;">
             <button type="submit" class="btn">Salvar Pedido</button>
-            <a href="index.php" class="btn btn-grey" style="text-decoration:none;padding:9px 12px;margin-left:8px;display:inline-block">Voltar</a>
+            <a href="gestor.php" class="btn btn-grey" style="text-decoration:none;padding:9px 12px;margin-left:8px;display:inline-block">Voltar</a>
         </div>
     </form>
   </div>
