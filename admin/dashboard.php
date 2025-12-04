@@ -64,6 +64,37 @@ try {
     // 5. Top 1 Tema mais pedido (Para o card de resumo)
     $top_tema_nome = $analiticos['top_temas_chart'][0]['tema_nome'] ?? 'N/A';
     $analiticos['top_tema_nome'] = $top_tema_nome;
+    
+    // 6. Top 5 Combos mais pedidos (Para o novo gráfico Top Combos)
+    $sql_top_combos_chart = "
+        SELECT 
+            p.combo_selecionado AS combo_nome,
+            COUNT(p.id_pedido) AS total
+        FROM pedidos p
+        GROUP BY p.combo_selecionado
+        ORDER BY total DESC
+        LIMIT 5
+    ";
+    $res_top_combos_chart = $conn->query($sql_top_combos_chart);
+    $analiticos['top_combos_chart'] = $res_top_combos_chart ? $res_top_combos_chart->fetch_all(MYSQLI_ASSOC) : [];
+    
+    // 7. Próximos Eventos (NOVA CONSULTA)
+    $sql_proximos_pedidos = "
+        SELECT 
+            p.id_pedido, 
+            p.data_evento, 
+            p.nome_cliente,
+            COALESCE(t.nome, p.tema_personalizado) AS nome_tema_exibicao
+        FROM pedidos p
+        LEFT JOIN temas t ON p.id_tema = t.id_tema
+        WHERE p.data_evento >= CURDATE()
+          AND p.status IN ('Confirmado', 'Em Produção', 'Retirado')
+        ORDER BY p.data_evento ASC
+        LIMIT 5
+    ";
+    $res_proximos_pedidos = $conn->query($sql_proximos_pedidos);
+    $analiticos['proximos_pedidos'] = $res_proximos_pedidos ? $res_proximos_pedidos->fetch_all(MYSQLI_ASSOC) : [];
+
 
 } catch (Exception $e) {
     $erros[] = "Erro na consulta analítica: " . $e->getMessage();
@@ -105,7 +136,7 @@ $conn->close();
                 </ul>
             </div>
         <?php endif; ?>
-
+        
         <div class="stats-grid">
             <div class="stat-card">
                 <h3><?php echo $analiticos['total_clientes']; ?></h3>
@@ -127,15 +158,42 @@ $conn->close();
                 <p>Tema Mais Popular</p>
             </div>
         </div>
-
-        <div class="charts-grid">
+        
+        <div class="main-visual-grid">
+            
             <div class="chart-container">
                 <h3 class="h5">Pedidos por Mês</h3>
                 <canvas id="chartPedidosMes"></canvas>
             </div>
+            
+            <div class="next-events-container">
+                <h3>🗓️ Próximas Festas Confirmadas</h3>
+                <div class="next-events-list">
+                    <?php if (empty($analiticos['proximos_pedidos'])): ?>
+                        <p class="text-muted text-center">Nenhuma festa confirmada ou em produção nos próximos dias.</p>
+                    <?php else: ?>
+                        <ul>
+                            <?php foreach ($analiticos['proximos_pedidos'] as $pedido): ?>
+                                <li>
+                                    <strong><?php echo date('d/m', strtotime($pedido['data_evento'])); ?>:</strong> 
+                                    <a href="editar.php?id=<?php echo $pedido['id_pedido']; ?>" title="Ver Pedido #<?php echo $pedido['id_pedido']; ?>">
+                                        <?php echo htmlspecialchars($pedido['nome_cliente']); ?> (<?php echo htmlspecialchars($pedido['nome_tema_exibicao']); ?>)
+                                    </a>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                </div>
+            </div>
+            
             <div class="chart-container">
                 <h3 class="h5">Top 5 Temas</h3>
                 <canvas id="chartTopTemas"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h3 class="h5">Combos Mais Pedidos</h3>
+                <canvas id="chartTopCombos"></canvas>
             </div>
         </div>
 
@@ -152,24 +210,22 @@ $conn->close();
 </div>
 
 
-<!-- ============================================================
-     JS: GERAR PDF
-============================================================ -->
-
-
-    <script>
+<script>
 
         // --- DADOS PHP PARA JS ---
         const dadosPedidosMes = <?php echo json_encode($analiticos['pedidos_por_mes']); ?>;
         const dadosTopTemas = <?php echo json_encode($analiticos['top_temas_chart']); ?>;
+        const dadosTopCombos = <?php echo json_encode($analiticos['top_combos_chart']); ?>; 
         const mesesMap = <?php echo json_encode($meses); ?>;
         // --------------------------
 
         function renderCharts() {
             const ctxMes = document.getElementById('chartPedidosMes');
             const ctxTemas = document.getElementById('chartTopTemas');
+            const ctxCombos = document.getElementById('chartTopCombos'); 
 
-            if (!ctxMes || !ctxTemas) return;
+            if (!ctxMes || !ctxTemas || !ctxCombos) return;
+
 
             // Chart 1: Pedidos por Mês
             if (dadosPedidosMes.length === 0) {
@@ -222,9 +278,35 @@ $conn->close();
                     }
                 });
             }
+            
+            // Chart 3: Top Combos
+            if (dadosTopCombos.length === 0) {
+                 ctxCombos.parentElement.innerHTML = '<p class="text-muted text-center pt-5">Nenhum dado de combo para exibir no gráfico.</p>';
+            } else {
+                 const labelsCombos = dadosTopCombos.map(d => d.combo_nome);
+                 const dataCombos = dadosTopCombos.map(d => d.total);
+
+                 new Chart(ctxCombos, {
+                     type: 'doughnut', 
+                     data: {
+                         labels: labelsCombos,
+                         datasets: [{
+                             label: 'Combos Mais Pedidos',
+                             data: dataCombos,
+                             backgroundColor: ['#007bff', '#ff9900', '#0c9', '#90f', '#f3c'],
+                         }]
+                     },
+                      options: {
+                         responsive: true,
+                         maintainAspectRatio: false,
+                         plugins: {
+                             legend: { position: 'right' }
+                         }
+                     }
+                 });
+            }
         }
         
-        // Inicialização dos Gráficos após o DOM estar totalmente carregado
         document.addEventListener('DOMContentLoaded', renderCharts);
 
         
@@ -279,7 +361,7 @@ document.getElementById("btnPDF").addEventListener("click", function () {
     function toggleDarkMode() {
         const body = document.body;
         const toggle = document.getElementById('darkModeToggle');
-        const logoElement = document.getElementById('sidebarLogo'); // Seleciona o elemento da logo
+        const logoElement = document.getElementById('sidebarLogo'); 
         
         if (toggle.checked) {
             // Ativa Dark Mode
@@ -288,7 +370,7 @@ document.getElementById("btnPDF").addEventListener("click", function () {
             
             // Troca para logo escura
             if (logoElement) {
-                // Substitui 'logo_horizontal.svg' por 'logo_horizontal_dark.svg'
+                // Assume que você está usando 'encantiva_logo_white.png' e 'encantiva_logo_dark.png'
                 logoElement.src = logoElement.src.replace('encantiva_logo_white.png', 'encantiva_logo_dark.png');
             }
 
@@ -299,7 +381,6 @@ document.getElementById("btnPDF").addEventListener("click", function () {
 
             // Troca para logo clara
             if (logoElement) {
-                // Substitui 'logo_horizontal_dark.svg' por 'logo_horizontal.svg'
                 logoElement.src = logoElement.src.replace('encantiva_logo_dark.png', 'encantiva_logo_white.png');
             }
         }

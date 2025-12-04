@@ -466,3 +466,95 @@ tr:hover {
 .dark-mode .main-footer a {
     color: var(--color-pink);
 }
+
+/* ========================================================= */
+/* ADICIONAL: ESTRUTURA DASHBOARD (Next Events & New Grids)  */
+/* ========================================================= */
+
+/* Grid Principal de 2 Colunas para Listas/Gráficos */
+.main-visual-grid {
+    display: grid; 
+    grid-template-columns: 1fr 1fr; /* 2 colunas para os 4 itens */
+    gap: 20px; 
+    margin-bottom: 30px; 
+}
+
+/* Container da Lista de Próximos Eventos */
+.next-events-container {
+    background: var(--color-white);
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    /* Garante altura igual aos gráficos na primeira linha */
+    height: 400px; 
+    box-sizing: border-box; 
+    overflow: hidden;
+}
+
+.next-events-container h3 {
+    color: var(--color-purple-dark);
+    border-bottom: 1px solid var(--color-border-light);
+    padding-bottom: 10px;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+.next-events-list {
+    max-height: 330px; /* Limite de altura para permitir scroll interno */
+    overflow-y: auto;
+}
+.next-events-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.next-events-list li {
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--color-border-light);
+    font-size: 14px;
+}
+.next-events-list li:last-child {
+    border-bottom: none;
+}
+.next-events-list a {
+    color: var(--color-text);
+    text-decoration: none;
+}
+.next-events-list a:hover {
+    color: var(--color-pink);
+    text-decoration: underline;
+}
+
+/* Reajuste para os Cards de Estatísticas (Stats Grid) */
+.stats-grid { 
+    grid-template-columns: repeat(4, 1fr); /* Mantém os 4 cards em linha no topo */
+    gap: 20px;
+    margin-bottom: 30px;
+}
+.stat-card {
+    padding: 12px;
+    height: auto; /* Deixa a altura flexível */
+}
+.charts-grid {
+    /* Removido - A nova estrutura usa main-visual-grid */
+    /* Garante que os containers de gráfico tenham altura fixa para alinhamento */
+    height: 100%;
+}
+
+/* Adaptação dos containers de gráfico para a nova grade (Ajusta a altura) */
+.chart-container { 
+    height: 400px; /* Igual à lista de eventos */
+    min-height: 300px;
+}
+
+/* Adaptações do Dark Mode para a nova seção */
+.dark-mode .next-events-container h3 {
+    color: var(--color-purple);
+    border-bottom: 1px solid var(--color-border-light);
+}
+.dark-mode .next-events-list li {
+    border-bottom: 1px dashed var(--color-border-light);
+}
+.dark-mode .next-events-list a {
+    color: var(--color-text);
+}
