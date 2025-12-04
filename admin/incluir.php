@@ -9,6 +9,8 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
+include '../components/sidebar.php';
+
 $conn = $conn;
 
 // REDIRECIONA SE CONEXAO COM ERRO
@@ -202,6 +204,7 @@ $conn->close();
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Incluir Pedido - Encantiva</title>
+<link rel="stylesheet" href="../css/style.css">
 <style>
     body { font-family: Inter, sans-serif; background:#f7f5fb; color:#140033; padding:20px; }
     .container { max-width:800px; margin:0 auto; background:white; padding:24px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
@@ -217,6 +220,7 @@ $conn->close();
 </style>
 </head>
 <body>
+    <div class="main-content-wrapper">
   <div class="container">
     <h1>Adicionar Pedido</h1>
 
@@ -356,6 +360,7 @@ $conn->close();
         </div>
     </form>
   </div>
+            </div>
 
   <script>
     // Script para preencher Nome/Telefone automaticamente ao selecionar o Cliente

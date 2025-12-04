@@ -9,6 +9,8 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
+include '../components/sidebar.php';
+
 $conn = $conn;
 $combos = [];
 $erro = '';
@@ -40,6 +42,7 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestão de Combos - Encantiva Festas</title>
+    <link rel="stylesheet" href="../css/style.css">
     <style>
         body { font-family: 'Inter', sans-serif; margin: 20; gap:30px; padding: 20px; background-color: #fefcff; color: #140033; }
         .container { max-width: 1200px; margin: 0 auto; }
@@ -66,7 +69,7 @@ $conn->close();
     </style>
 </head>
 <body>
-
+<div class="main-content-wrapper">
     <div class="container">
         <h1>Gestão de Combos de Festa</h1>
 
@@ -114,5 +117,6 @@ $conn->close();
             </table>
         <?php endif; ?>
     </div>
+                    </div>
 </body>
 </html>

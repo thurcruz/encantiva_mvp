@@ -9,6 +9,8 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
+include '../components/sidebar.php';
+
 $conn = $conn;
 $erros = [];
 $mensagem_sucesso = '';
@@ -72,9 +74,10 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adicionar Adicional - Gestão</title>
+    <link rel="stylesheet" href="../css/style.css">
     <style>
         body { font-family: 'Inter', sans-serif; margin: 20; padding: 20px; background-color: #fefcff; color: #140033; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .container { max-width: 100%; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; }
         h1 { color: #90f; border-bottom: 2px solid #f3c; padding-bottom: 10px; margin-bottom: 20px; }
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; }
@@ -93,6 +96,7 @@ $conn->close();
     </style>
 </head>
 <body>
+    <div class="main-content-wrapper">
     <div class="container">
         <h1>Adicionar Novo Item Adicional</h1>
 
@@ -139,5 +143,6 @@ $conn->close();
 
         </form>
     </div>
+        </div>
 </body>
 </html>

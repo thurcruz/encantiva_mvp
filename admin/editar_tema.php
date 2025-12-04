@@ -9,6 +9,8 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
+include '../components/sidebar.php';
+
 $conn = $conn;
 $erros = [];
 $mensagem_sucesso = '';
@@ -114,6 +116,7 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/style.css">
     <title>Editar Tema - Gestão</title>
     <style>
         body { font-family: 'Inter', sans-serif; margin: 20; padding: 20px; background-color: #fefcff; color: #140033; }
@@ -137,6 +140,7 @@ $conn->close();
     </style>
 </head>
 <body>
+    <div class="main-content-wrapper">
     <div class="container">
         <h1>Editar Tema: <?php echo htmlspecialchars($id_tema > 0 ? $nome_tema : 'Erro'); ?></h1>
 
@@ -196,5 +200,6 @@ $conn->close();
             </form>
         <?php endif; ?>
     </div>
+                        </div>
 </body>
 </html>

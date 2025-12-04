@@ -1,17 +1,21 @@
 /* Estilos Essenciais da Sidebar */
 .sidebar {
-    width: 250px;
+    width: 220px;
     height: 100vh;
     position: fixed;
     top: 0;
     left: 0;
+    overflow: hidden;
+    top: 0;
+    left: 0;
     background-color: #1a0033; /* Cor escura do seu tema */
     color: #fff;
-    padding: 20px;
+    padding: 48px 20px;
+    border-radius: 0px 32px 32px 0;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    gap: 20px;
 }
 
 .logo-sidebar {
@@ -32,7 +36,7 @@
     margin-bottom: 8px;
     color: #f6e9ff;
     text-decoration: none;
-    border-radius: 4px;
+    border-radius: 24px;
     transition: background-color 0.3s;
 }
 
@@ -67,8 +71,8 @@
     display: block;
     background-color: #f50c33; 
     color: white;
-    padding: 8px;
-    border-radius: 4px;
+    padding: 12px;
+    border-radius: 32px;
     text-decoration: none;
     margin-top: 10px;
 }

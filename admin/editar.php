@@ -9,6 +9,8 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
+include '../components/sidebar.php';
+
 $conn = $conn;
 $erros = [];
 $mensagem = '';
@@ -227,6 +229,7 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Pedido #<?php echo htmlspecialchars($id_pedido); ?></title>
+    <link rel="stylesheet" href="../css/style.css">
     <style>
         body { font-family: 'Inter', sans-serif; margin: 0; padding: 20px; background-color: #fefcff; color: #140033; }
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -255,6 +258,7 @@ $conn->close();
     </style>
 </head>
 <body>
+    <div class="main-content-wrapper">
     <div class="container">
         <h1>Editar Pedido #<?php echo htmlspecialchars($id_pedido); ?></h1>
 
@@ -420,5 +424,6 @@ $conn->close();
             <a href="gestor.php" class="btn-voltar">Voltar para a Lista</a>
         <?php endif; ?>
     </div>
+        </div>
 </body>
 </html>

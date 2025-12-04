@@ -9,7 +9,7 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
-include 'sidebar.php';
+include '../components/sidebar.php';
 
 $conn = $conn;
 $erros = [];

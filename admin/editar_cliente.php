@@ -9,6 +9,8 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
+include '../components/sidebar.php';
+
 $conn = $conn;
 $erros = [];
 $mensagem_sucesso = '';
@@ -137,6 +139,7 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Cliente - Gestão</title>
+    <link rel="stylesheet" href="../css/style.css">
     <style>
         body { font-family: 'Inter', sans-serif; margin: 20; padding: 20px; background-color: #fefcff; color: #140033; }
         .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -158,6 +161,7 @@ $conn->close();
     </style>
 </head>
 <body>
+    <div class="main-content-wrapper">
     <div class="container">
         <h1>Editar Cliente #<?php echo htmlspecialchars($id_param); ?></h1>
 
@@ -221,5 +225,6 @@ $conn->close();
             <a href="clientes.php" class="btn-voltar">Voltar para a Lista</a>
         <?php endif; ?>
     </div>
+        </div>
 </body>
 </html>

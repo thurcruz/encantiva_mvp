@@ -9,7 +9,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
 <div class="sidebar">
     <div class="sidebar-header">
         <img src="../assets/logo_horizontal.svg" alt="Encantiva" class="logo-sidebar">
-        <h3>Gestão</h3>
     </div>
 
     <nav class="sidebar-nav">
