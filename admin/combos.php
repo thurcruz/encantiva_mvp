@@ -43,44 +43,18 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestão de Combos - Encantiva Festas</title>
     <link rel="stylesheet" href="../css/style.css">
-    <style>
-        body { font-family: 'Inter', sans-serif; margin: 20; gap:30px; padding: 20px; background-color: #fefcff; color: #140033; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        h1 { color: #90f; border-bottom: 2px solid #f3c; padding-bottom: 10px; }
-        .btn-acao { 
-            padding: 5px 10px; 
-            margin: 0 2px;
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            text-decoration: none; 
-            font-size: 14px;
-            display: inline-block;
-        }
-        .btn-adicionar { background-color: #0c9; color: white; padding: 8px; font-weight: 700; }
-        .btn-editar { background-color: #90f; color: white; padding: 6px; }
-        .btn-excluir { background-color: #f50c33; color: white; padding: 6px; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); background-color: white; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ead3ff; }
-        th { background-color: #f6e9ff; color: #6a0dad; font-weight: 700; }
-        tr:hover { background-color: #fff0f9; }
-        .valor { font-weight: bold; color: #0c9; }
-    </style>
 </head>
 <body>
 <div class="main-content-wrapper">
     <div class="container">
-        <h1>Gestão de Combos de Festa</h1>
-
-        <?php if (!empty($erro)): ?>
+         <?php if (!empty($erro)): ?>
             <p style="color: red; font-weight: bold;">Erro: <?php echo $erro; ?></p>
         <?php endif; ?>
-
-        <div style="margin-bottom: 20px;">
+        <div class="header">
+     <h1>Gestão de Combos de Festa</h1>
+        <div>
             <a href="adicionar_combo.php" class="btn-acao btn-adicionar">+ Adicionar Novo Combo</a>
-            <a href="gestor.php" class="btn-acao btn-editar">Voltar para Pedidos</a>
-            <a href="temas.php" class="btn-acao btn-editar" style="background-color: #f3c;">Gerenciar Temas</a>
+        </div>
         </div>
 
         <?php if (empty($combos)): ?>

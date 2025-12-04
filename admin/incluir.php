@@ -205,19 +205,7 @@ $conn->close();
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Incluir Pedido - Encantiva</title>
 <link rel="stylesheet" href="../css/style.css">
-<style>
-    body { font-family: Inter, sans-serif; background:#f7f5fb; color:#140033; padding:20px; }
-    .container { max-width:800px; margin:0 auto; background:white; padding:24px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
-    label{display:block;margin-bottom:6px;font-weight:600}
-    input[type=text], input[type=date], input[type=number], select, textarea { width:100%; padding:10px;border:1px solid #ddd;border-radius:6px;margin-bottom:12px; box-sizing:border-box; }
-    .btn { background:#90f;color:#fff;padding:10px 14px;border:none;border-radius:6px;cursor:pointer;font-weight:700 }
-    .btn-grey { background:#ddd;color:#222 }
-    .errors { background:#fdecea;color:#8a1f1f;padding:10px;border-radius:6px;margin-bottom:12px }
-    .info { background:#eef6ff;color:#153e75;padding:10px;border-radius:6px;margin-bottom:12px }
-    .small { font-size:13px;color:#666 }
-    .adicional-item { margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #eee; padding: 5px 0; }
-    .adicional-item input[type="number"] { width: 80px; text-align: center; margin: 0; padding: 5px; }
-</style>
+
 </head>
 <body>
     <div class="main-content-wrapper">

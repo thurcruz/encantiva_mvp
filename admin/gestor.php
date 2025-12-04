@@ -76,48 +76,14 @@ if ($conn->connect_errno) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor de Pedidos Encantiva Festas</title>
     <link rel="stylesheet" href="../css/style.css">
-    <style>
-        body { font-family: 'Inter', sans-serif; margin: 20; gap:30px; padding: 20px; background-color: #fefcff; color: #140033; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        h1 { color: #90f; border-bottom: 2px solid #f3c; padding-bottom: 10px; margin-bottom: 20px; }
-        .btn-acao { padding: 5px 10px; margin: 0 2px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; font-size: 14px; display: inline-block; }
-        .btn-editar { background-color: #f3c; color: white; padding: 8px; }
-        .btn-excluir { background-color: #f50c33; color: white; padding: 6px; }
-        .btn-buscar { background-color: #90f; color: white; padding: 8px 15px; }
-        .btn-limpar { background-color: #ccc; color: #333; padding: 8px 15px; } /* Novo Estilo para Limpar */
-
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); background-color: white; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ead3ff; }
-        th { background-color: #f6e9ff; color: #6a0dad; font-weight: 700; }
-        tr:hover { background-color: #fff0f9; }
-        
-        /* Estilos de Filtro */
-        .filter-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; }
-        .filters-grid { display: grid; grid-template-columns: repeat(5, 1fr) auto; gap: 10px; align-items: flex-end; padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; }
-        .filters-grid label { font-weight: 600; margin-bottom: 5px; }
-        .filters-grid select, .filters-grid input[type="text"] { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
-        .filters-grid button { height: 38px; }
-
-        /* Estilos de Badge */
-        .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; color: white; display: inline-block; text-align: center; min-width: 90px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-        .aguardando { background-color: #f3c; }
-        .emproducao { background-color: #007bff; }
-        .confirmado { background-color: #90f; }
-        .retirado { background-color: rgba(255, 72, 0, 1); }
-        .finalizado { background-color: #0c9; }
-        .cancelado { background-color: #f50c33; }
-        .alerta { color: red; font-weight: bold; }
-
-    </style>
 </head>
 <body>
 <div class="main-content-wrapper">
     <div class="container">
-        <h1>Gestor de Pedidos</h1>
-
-        <div class="filter-header">
-            <h2 style="font-size: 1.5em; color: #f3c;">Controles</h2>
-            <a href="incluir.php" class="btn-acao btn-editar">+ Adicionar Pedido</a>
+    
+        <div class="header">
+              <h1>Gestor de Pedidos</h1>
+            <a href="incluir.php" class="btn-acao btn-adicionar">+ Adicionar Pedido</a>
         </div>
 
         <div class="filters-grid">

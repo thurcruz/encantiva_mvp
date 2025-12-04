@@ -80,37 +80,20 @@ $conn->close();
     <title>Dashboard - Encantiva Festas</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
     <link rel="stylesheet" href="../css/style.css">
-    <style>
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 20px; background-color: #fefcff; color: #140033; }
-        .container { max-width: 1400px; margin: 0 auto; }
-        h1 { color: #90f; border-bottom: 2px solid #f3c; padding-bottom: 10px; margin-bottom: 20px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; }
-        .stat-card h3 { color: #f3c; font-size: 1.8em; font-weight: 700; }
-        .stat-card p { color: #6a0dad; margin: 5px 0 0; font-size: 0.9em; }
-        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-        
-        /* CORREÇÃO DO BUG DE ESTICAMENTO AQUI */
-        .chart-container { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
-            /* CORREÇÃO: Limitar a altura máxima do contêiner */
-            max-height: 400px; 
-            min-height: 300px;
-            position: relative; 
-        }
-        .alerta { color: red; font-weight: bold; }
-    </style>
-    
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
 <div class="main-content-wrapper">
     <div class="container">
+        <div class="header">
         <h1>Dashboard Analítico</h1>
+        <button id="btnPDF" class="btn-acao btn-adicionar">Gerar Relatório PDF</button>
+        </div>
+
         <p>Visão geral das estatísticas e gráficos de desempenho.</p>
+       
 
         <?php if (!empty($erros)): ?>
             <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border: 1px solid #f5c6cb; border-radius: 4px; margin-bottom: 20px;">
@@ -158,7 +141,14 @@ $conn->close();
 
     </div>
 </div>
+
+<!-- ============================================================
+     JS: GERAR PDF
+============================================================ -->
+
+
     <script>
+
         // --- DADOS PHP PARA JS ---
         const dadosPedidosMes = <?php echo json_encode($analiticos['pedidos_por_mes']); ?>;
         const dadosTopTemas = <?php echo json_encode($analiticos['top_temas_chart']); ?>;
@@ -227,6 +217,51 @@ $conn->close();
         // Inicialização dos Gráficos após o DOM estar totalmente carregado
         document.addEventListener('DOMContentLoaded', renderCharts);
 
+        
+
     </script>
+
+
+<script>
+window.jsPDF = window.jspdf.jsPDF;
+
+document.getElementById("btnPDF").addEventListener("click", function () {
+
+    const elemento = document.querySelector('.main-content-wrapper');  
+    const originalStyle = elemento.style.cssText;
+
+    elemento.style.padding = '20px';
+    elemento.style.margin = '0';
+
+    html2canvas(elemento, { scale: 2 }).then(canvas => {
+
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        let imgHeight = (canvas.height * pageWidth) / canvas.width;
+        let pageHeight = pdf.internal.pageSize.getHeight();
+
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        // Primeira página
+        pdf.addImage(imgData, 'PNG', 0, position, pageWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        // Quebra automática se o conteúdo for longo
+        while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, pageWidth, imgHeight);
+            heightLeft -= pageHeight;
+        }
+
+        pdf.save('Relatorio.pdf');
+        elemento.style.cssText = originalStyle;
+    });
+});
+
+</script>
 </body>
 </html>

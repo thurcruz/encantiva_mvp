@@ -1,4 +1,28 @@
-/* Estilos Essenciais da Sidebar */
+/* ========================================================= */
+/* VARIÁVEIS GLOBAIS (BASE DO SEU CÓDIGO ORIGINAL)          */
+/* ========================================================= */
+:root {
+  --color-bg: #fefcff;
+  --color-white: #fff;
+  --color-purple: #90f;
+  --color-pink: #f3c;
+  --color-purple-dark: #6a0dad;
+  --color-purple-light: #f6e9ff;
+  --color-border-light: #ead3ff;
+  --shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* ========================================================= */
+/* LAYOUT PRINCIPAL E SIDEBAR (Mantido Conforme Especificado)*/
+/* ========================================================= */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0; 
+    background-color: var(--color-bg);
+}
+
+/* Estilos Essenciais da Sidebar (MANTIDOS) */
 .sidebar {
     width: 220px;
     height: 100vh;
@@ -6,9 +30,7 @@
     top: 0;
     left: 0;
     overflow: hidden;
-    top: 0;
-    left: 0;
-    background-color: #1a0033; /* Cor escura do seu tema */
+    background-color: #1a0033;
     color: #fff;
     padding: 48px 20px;
     border-radius: 0px 32px 32px 0;
@@ -16,13 +38,13 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+    z-index: 1000;
 }
 
 .logo-sidebar {
     max-width: 100%;
     height: auto;
     margin-bottom: 20px;
-    /* Adapte a cor do logo para que seja visível no fundo escuro, se necessário */
 }
 
 .sidebar-nav ul {
@@ -41,19 +63,20 @@
 }
 
 .sidebar-nav a:hover {
-    background-color: #90f;
-    color: #fff;
+    background-color: var(--color-purple);
+    color: var(--color-white);
 }
 
 .sidebar-nav a.active {
-    background-color: #f3c; /* Cor de destaque */
+    background-color: var(--color-pink);
     color: white;
     font-weight: bold;
 }
 
 .main-content-wrapper {
-    margin-left: 250px; /* Cria espaço para a barra lateral */
+    margin-left: 280px; /* Cria espaço para a barra lateral */
     padding: 20px;
+    min-height: 100vh;
 }
 
 .sidebar-footer {
@@ -76,3 +99,149 @@
     text-decoration: none;
     margin-top: 10px;
 }
+
+
+/* ========================================================= */
+/* GESTÃO / FORMULÁRIOS / TABELAS                            */
+/* ========================================================= */
+.container { 
+    max-width: 1200px; 
+    margin: 0 auto; 
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+h1 { 
+    color: var(--color-purple); 
+    border-bottom: 2px solid var(--color-pink); 
+    padding-bottom: 10px; 
+    margin-bottom: 20px; 
+}
+
+p { 
+    color: var(--color-purple); 
+
+}
+
+
+/* Inputs, Selects e Textareas */
+input[type="text"], input[type="date"], input[type="number"], input[type="email"], input[type="password"], select, textarea { 
+    width: 100%; 
+    padding: 12px; 
+    border: 1px solid #ccc; 
+    border-radius: 32px; 
+    box-sizing: border-box; 
+    margin-bottom: 12px;
+}
+
+/* Tabelas */
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 20px; 
+    box-shadow: var(--shadow); 
+    background-color: var(--color-white); 
+    
+}
+th, td { 
+    padding: 12px 15px; 
+    text-align: left; 
+    border-bottom: 1px solid var(--color-border-light); 
+}
+th { 
+    background-color: var(--color-purple-light); 
+    color: var(--color-purple-dark); 
+    font-weight: 700; 
+}
+tr:hover { 
+    background-color: #fff0f9; 
+}
+
+/* Botões de Ação */
+.btn-acao { 
+    padding: 12px 12px; 
+    margin: 0 2px;
+    border: none; 
+    border-radius: 32px; 
+    cursor: pointer; 
+    text-decoration: none; 
+    font-size: 14px;
+    display: inline-block;
+}
+.btn-adicionar { background-color: #0c9; color: white; padding: 12px; font-weight: 700; }
+.btn-editar { background-color: var(--color-purple); color: white; padding: 8px; }
+.btn-excluir { background-color: #f50c33; color: white; padding: 8px; }
+.btn-toggle-on { background-color: #0c9; color: white; padding: 8px; }
+.btn-toggle-off { background-color: var(--color-pink); color: white; padding: 8px; }
+.btn-limpar { background-color: #ccc; color: #333; padding: 8px 15px; } 
+.btn-buscar { background-color: #90f; color: white; padding: 8px 15px; }
+
+
+/* ESTILOS DE FILTRO (GRID) */
+.filters-grid { 
+    display: grid; 
+    grid-template-columns: repeat(5, 1fr) auto; 
+    gap: 12px; 
+    align-items: flex-end; 
+    padding: 15px; 
+    background-color: #fcf9ff;
+    border: 1px solid var(--color-purple-light); 
+    border-radius: 8px; 
+    margin-bottom: 20px; 
+}
+.filters-grid label { color: #1a0033; font-weight: 600; margin-bottom: 5px; gap: 12px;}
+.filters-grid select, .filters-grid input[type="text"] { width: 100%; padding: 8px; border-radius: 32px; border: 1px solid #ccc; }
+.filters-grid button { height: 38px; }
+
+
+/* ========================================================= */
+/* DASHBOARD E GRÁFICOS (CORREÇÕES DE BUG)                   */
+/* ========================================================= */
+.stat-card { 
+    background: white; 
+    padding: 15px; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+    text-align: center; 
+}
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+
+/* CORREÇÃO CRÍTICA PARA GRÁFICOS (Evita Esticamento Infinito) */
+.chart-container { 
+    background: white; 
+    padding: 20px; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+    max-height: 400px; /* Limita a altura do contêiner */
+    min-height: 300px;
+    position: relative; 
+}
+.chart-container canvas {
+    max-height: 360px; /* Garante que o canvas se ajuste */
+}
+
+/* ========================================================= */
+/* BADGES DE STATUS (CORES)                                  */
+/* ========================================================= */
+.status-badge { 
+    padding: 6px 12px; 
+    border-radius: 20px; 
+    font-size: 13px; 
+    font-weight: 600;
+    color: white;
+    display: inline-block;
+    text-align: center;
+    min-width: 90px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.aguardando { background-color: var(--color-pink); }
+.confirmado { background-color: var(--color-purple); }
+.producao { background-color: #007bff; } /* Azul */
+.retirado { background-color: #ff9900; } /* Laranja */
+.finalizado { background-color: #0c9; } /* Verde */
+.cancelado { background-color: #f50c33; } /* Vermelho */
