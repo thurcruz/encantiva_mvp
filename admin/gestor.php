@@ -8,7 +8,7 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
-// ... (Restante do gestor.php) ...
+$conn = $conn;
 
 // Verifica se houve erro na conexão (já verificado no conexao.php, mas para segurança)
 if ($conn->connect_errno) {
@@ -16,9 +16,20 @@ if ($conn->connect_errno) {
     $pedidos = [];
 } else {
     // 1. Lógica de Consulta (READ)
-    $sql = "SELECT id_pedido, data_criacao, nome_cliente, telefone, id_tema, data_evento, combo_selecionado, valor_total, status 
-            FROM pedidos 
-            ORDER BY data_criacao DESC";
+    // CORREÇÃO: Usando JOIN e COALESCE para obter o nome do tema ou o tema personalizado.
+    $sql = "SELECT 
+                p.id_pedido, 
+                p.data_criacao, 
+                p.nome_cliente, 
+                p.telefone, 
+                p.data_evento, 
+                p.combo_selecionado, 
+                p.valor_total, 
+                p.status,
+                COALESCE(t.nome, p.tema_personalizado) AS nome_tema_exibicao
+            FROM pedidos p
+            LEFT JOIN temas t ON p.id_tema = t.id_tema
+            ORDER BY p.data_criacao DESC";
     
     $resultado = $conn->query($sql);
     
@@ -30,9 +41,8 @@ if ($conn->connect_errno) {
         $pedidos = [];
     }
 }
-// Não fechar a conexão aqui se ela for usada em includes posteriores, 
-// mas para este exemplo, podemos fechar ao final da página se não for mais necessário:
-// $conexao->close();
+// Fechar a conexão aqui é seguro
+// $conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -73,6 +83,7 @@ if ($conn->connect_errno) {
         }
         .aguardando { background-color: #f3c; }
         .confirmado { background-color: #90f; }
+        .retirado { background-color: rgba(255, 72, 0, 1); }
         .finalizado { background-color: #0c9; }
         .alerta { color: red; font-weight: bold; }
 
@@ -112,8 +123,6 @@ if ($conn->connect_errno) {
 </head>
 <body>
 
-
-
     <div class="container">
         <div class="header-logo">
     <img src="/encantiva/assets/logo_horizontal.svg" alt="Encantiva Festas">
@@ -150,28 +159,27 @@ if ($conn->connect_errno) {
                 <tbody>
                     <?php foreach ($pedidos as $pedido): ?>
                         <tr>
-    <td><?php echo $pedido['id_pedido']; ?></td>
-    <td><?php echo date('d/m/Y H:i', strtotime($pedido['data_criacao'])); ?></td>
-    <td>
-        <?php echo htmlspecialchars($pedido['nome_cliente']); ?><br>
-        <small><?php echo htmlspecialchars($pedido['telefone']); ?></small>
-    </td>
-    <td><?php echo htmlspecialchars($pedido['id_tema']); ?></td>
-    <td><?php echo date('d/m/Y', strtotime($pedido['data_evento'])); ?></td>
-    <td><?php echo htmlspecialchars($pedido['combo_selecionado']); ?></td>
-    <td>R$ <?php echo number_format($pedido['valor_total'], 2, ',', '.'); ?></td>
-    <td>
-        <?php
-        $status_class = strtolower(str_replace(' ', '', $pedido['status']));
-        echo "<span class='status-badge {$status_class}'>" . htmlspecialchars($pedido['status']) . "</span>";
-        ?>
-    </td>
-    <td>
-        <a href="editar.php?id=<?php echo $pedido['id_pedido']; ?>" class="btn-acao btn-editar">Detalhes/Editar</a>
-        <a href="excluir.php?id_pedido=<?= $pedido['id_pedido'] ?>" class="btn-acao btn-excluir" onclick="return confirm('Tem certeza que deseja excluir este pedido?');">Excluir</a>
-    </td>
-</tr>
-
+                            <td><?php echo $pedido['id_pedido']; ?></td>
+                            <td><?php echo date('d/m/Y H:i', strtotime($pedido['data_criacao'])); ?></td>
+                            <td>
+                                <?php echo htmlspecialchars($pedido['nome_cliente']); ?><br>
+                                <small><?php echo htmlspecialchars($pedido['telefone']); ?></small>
+                            </td>
+                            <td><?php echo htmlspecialchars($pedido['nome_tema_exibicao']); ?></td> 
+                            <td><?php echo date('d/m/Y', strtotime($pedido['data_evento'])); ?></td>
+                            <td><?php echo htmlspecialchars($pedido['combo_selecionado']); ?></td>
+                            <td>R$ <?php echo number_format($pedido['valor_total'], 2, ',', '.'); ?></td>
+                            <td>
+                                <?php
+                                $status_class = strtolower(str_replace(' ', '', $pedido['status']));
+                                echo "<span class='status-badge {$status_class}'>" . htmlspecialchars($pedido['status']) . "</span>";
+                                ?>
+                            </td>
+                            <td>
+                                <a href="editar.php?id=<?php echo $pedido['id_pedido']; ?>" class="btn-acao btn-editar">Detalhes/Editar</a>
+                                <a href="excluir.php?id_pedido=<?= $pedido['id_pedido'] ?>" class="btn-acao btn-excluir" onclick="return confirm('Tem certeza que deseja excluir este pedido?');">Excluir</a>
+                            </td>
+                        </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
@@ -198,6 +206,4 @@ campoBusca.addEventListener('keyup', function() {
 
 
 </body>
-
-
 </html>

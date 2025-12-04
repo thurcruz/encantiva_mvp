@@ -1,7 +1,8 @@
 <?php
-// consulta.php - Busca pedidos usando MySQLi no servidor local
+// consulta.php - Busca pedidos usando MySQLi no servidor local (para AJAX em gestor.php)
 
 include '../conexao.php';
+session_start();
 
 // Verifica se houve erro na conexão
 if ($conn->connect_errno) {
@@ -13,18 +14,32 @@ $busca = isset($_GET['busca']) ? trim($_GET['busca']) : "";
 // Prepara o termo de busca para a cláusula LIKE (%busca%)
 $termo_busca = "%" . $busca . "%";
 
-// 1. Constrói a query SQL
-// Busca por nome_cliente, tema ou telefone (baseado no campo de busca do gestor.php)
-$sql = "SELECT id_pedido, data_criacao, nome_cliente, telefone, tema, data_evento, combo_selecionado, valor_total, status 
-        FROM pedidos 
-        WHERE nome_cliente LIKE ? OR tema LIKE ? OR telefone LIKE ?
-        ORDER BY data_criacao DESC";
+// 1. Constrói a query SQL com JOIN e COALESCE
+$sql = "SELECT 
+            p.id_pedido, 
+            p.data_criacao, 
+            p.nome_cliente, 
+            p.telefone, 
+            p.data_evento, 
+            p.combo_selecionado, 
+            p.valor_total, 
+            p.status,
+            -- COALESCE retorna o nome do tema (t.nome) ou o tema personalizado (p.tema_personalizado)
+            COALESCE(t.nome, p.tema_personalizado) AS nome_tema_exibicao
+        FROM pedidos p
+        LEFT JOIN temas t ON p.id_tema = t.id_tema
+        WHERE 
+            p.nome_cliente LIKE ? OR 
+            COALESCE(t.nome, p.tema_personalizado) LIKE ? OR 
+            p.telefone LIKE ?
+        ORDER BY p.data_criacao DESC";
 
 // 2. Prepara a declaração
 $stmt = $conn->prepare($sql);
 
 if ($stmt) {
     // 3. Faz o bind dos parâmetros (3x o termo de busca como string 's')
+    // O filtro é aplicado a (nome_cliente, nome_tema_exibicao, telefone)
     $stmt->bind_param("sss", $termo_busca, $termo_busca, $termo_busca);
     
     // 4. Executa
@@ -45,18 +60,18 @@ if ($stmt) {
             $status_class = strtolower(str_replace(' ', '', $pedido['status']));
             $status_badge = "<span class='status-badge {$status_class}'>" . htmlspecialchars($pedido['status']) . "</span>";
             
-            // Sanitiza os dados para evitar XSS no HTML
+            // Sanitiza os dados e usa o alias 'nome_tema_exibicao'
             $id_pedido = htmlspecialchars($pedido['id_pedido']);
             $nome_cliente = htmlspecialchars($pedido['nome_cliente']);
             $telefone = htmlspecialchars($pedido['telefone']);
-            $tema = htmlspecialchars($pedido['tema']);
+            $tema_exibicao = htmlspecialchars($pedido['nome_tema_exibicao']); // <--- TEMA CORRIGIDO
             $combo_selecionado = htmlspecialchars($pedido['combo_selecionado']);
 
             echo "<tr>";
             echo "<td>{$id_pedido}</td>";
             echo "<td>{$data_criacao_formatada}</td>";
             echo "<td>{$nome_cliente}<br><small>{$telefone}</small></td>";
-            echo "<td>{$tema}</td>";
+            echo "<td>{$tema_exibicao}</td>"; // Tema corrigido
             echo "<td>{$data_evento_formatada}</td>";
             echo "<td>{$combo_selecionado}</td>";
             echo "<td>R$ {$valor_total_formatado}</td>";
