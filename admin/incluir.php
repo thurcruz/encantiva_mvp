@@ -343,8 +343,8 @@ $conn->close();
         <input id="valor_total" name="valor_total" type="text" value="<?php echo e($_POST['valor_total'] ?? '0,00'); ?>" required>
 
         <div style="margin-top:14px;">
-            <button type="submit" class="btn">Salvar Pedido</button>
-            <a href="gestor.php" class="btn btn-grey" style="text-decoration:none;padding:9px 12px;margin-left:8px;display:inline-block">Voltar</a>
+            <button type="submit" class="btn-salvar">Salvar Pedido</button>
+            <a href="gestor.php" class="btn-voltar" style="text-decoration:none;padding:9px 12px;margin-left:8px;display:inline-block">Voltar</a>
         </div>
     </form>
   </div>
@@ -425,5 +425,54 @@ $conn->close();
     // Roda o cálculo na primeira carga para preencher o campo (se houver POST)
     calcularValorTotal();
   </script>
+  <script>
+    // Função para alternar a classe dark-mode e salvar a preferência
+    function toggleDarkMode() {
+        const body = document.body;
+        const toggle = document.getElementById('darkModeToggle');
+        const logoElement = document.getElementById('sidebarLogo'); // Seleciona o elemento da logo
+        
+        if (toggle.checked) {
+            // Ativa Dark Mode
+            body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+            
+            // Troca para logo escura
+            if (logoElement) {
+                // Substitui 'logo_horizontal.svg' por 'logo_horizontal_dark.svg'
+                logoElement.src = logoElement.src.replace('encantiva_logo_white.png', 'encantiva_logo_dark.png');
+            }
+
+        } else {
+            // Desativa Dark Mode
+            body.classList.remove('dark-mode');
+            localStorage.setItem('theme', 'light');
+
+            // Troca para logo clara
+            if (logoElement) {
+                // Substitui 'logo_horizontal_dark.svg' por 'logo_horizontal.svg'
+                logoElement.src = logoElement.src.replace('encantiva_logo_dark.png', 'encantiva_logo_white.png');
+            }
+        }
+    }
+
+    // Carregar a preferência do tema ao carregar a página
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('theme');
+        const toggle = document.getElementById('darkModeToggle');
+        const logoElement = document.getElementById('sidebarLogo');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            if (toggle) {
+                toggle.checked = true;
+            }
+            // Aplica a logo escura na carga se o tema for dark
+            if (logoElement) {
+                logoElement.src = logoElement.src.replace('encantiva_logo_white.png', 'encantiva_logo_dark.png');
+            }
+        }
+    });
+</script>
 </body>
 </html>

@@ -124,8 +124,10 @@ if ($stmt) {
             echo "<td>R$ {$valor_total_formatado}</td>";
             echo "<td>{$status_badge}</td>";
             echo "<td>";
-            echo "<a href='editar.php?id={$id_pedido}' class='btn-acao btn-editar'>Detalhes/Editar</a>";
-            echo "<a href='excluir.php?id_pedido={$id_pedido}' class='btn-acao btn-excluir' onclick=\"return confirm('Tem certeza que deseja excluir este pedido?');\">Excluir</a>";
+            // Detalhes/Editar transformado em Ícone
+            echo "<a href='editar.php?id={$id_pedido}' class='btn-icon btn-icon-editar' title='Detalhes/Editar'></a>";
+            // Excluir (já era ícone)
+            echo "<a href='excluir.php?id_pedido={$id_pedido}' class='btn-icon btn-icon-excluir' onclick=\"return confirm('Tem certeza que deseja excluir este pedido?');\" title='Excluir'></a>";
             echo "</td>";
             echo "</tr>";
         }

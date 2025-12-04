@@ -3,6 +3,7 @@
 /* ========================================================= */
 :root {
   --color-bg: #fefcff;
+   --color-sidebar: #1a0033; /* Cor do texto padrão */
   --color-white: #fff;
   --color-purple: #90f;
   --color-pink: #f3c;
@@ -10,6 +11,25 @@
   --color-purple-light: #f6e9ff;
   --color-border-light: #ead3ff;
   --shadow: 0 4px 10px rgba(0,0,0,0.05);
+  --color-text: #1a0033; /* Cor do texto padrão */
+  --color-logout: #f50c33;
+  --color-border-logout: #f50c33;
+}
+
+/* Definição de Cores para o Modo ESCURO */
+.dark-mode {
+  --color-bg: #1a0033;        /* Fundo principal escuro */
+  --color-sidebar: #f3c; /* Cor do texto padrão */
+  --color-white: #0f001d;     /* Fundo de card/tabela */
+  --color-purple: rgb(255, 198, 241);    /* Roxo suave */
+  --color-pink: rgb(207, 34, 164);      /* Rosa/Vermelho suave */
+  --color-purple-dark: #bb86fc;
+  --color-purple-light: #0f001d; /* Fundo de cabeçalho/filtro escuro */
+  --color-border-light: #0f001d;
+  --color-text: #ffffff;      /* Cor do texto principal */
+  --shadow: 0 4px 10px rgba(0,0,0,0.3);
+  --color-logout: #f3c;
+  --color-border-logout: #ffffff;
 }
 
 /* ========================================================= */
@@ -20,6 +40,7 @@ body {
     margin: 0;
     padding: 0; 
     background-color: var(--color-bg);
+    color: var(--color-text); /* Aplicado para Dark Mode */
 }
 
 /* Estilos Essenciais da Sidebar (MANTIDOS) */
@@ -30,7 +51,7 @@ body {
     top: 0;
     left: 0;
     overflow: hidden;
-    background-color: #1a0033;
+    background-color: var(--color-sidebar);
     color: #fff;
     padding: 48px 20px;
     border-radius: 0px 32px 32px 0;
@@ -92,7 +113,8 @@ body {
 
 .btn-logout {
     display: block;
-    background-color: #f50c33; 
+    background-color: var(--color-logout); 
+    border: solid 2px var(--color-border-logout);
     color: white;
     padding: 12px;
     border-radius: 32px;
@@ -100,7 +122,68 @@ body {
     margin-top: 10px;
 }
 
+.dark-mode-switch-container {
+  position: relative;
+  display: inline-block;
+  width: 45px; /* Largura total do switch */
+  height: 25px; /* Altura total do switch */
+}
 
+/* Esconde o checkbox padrão do navegador */
+.dark-mode-switch-container input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* O Slider (alavanca visual) */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc; /* Cor de fundo quando OFF */
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px; /* Altura do círculo */
+  width: 18px; /* Largura do círculo */
+  left: 4px; /* Posição inicial */
+  bottom: 3.5px;
+  background-color: white; /* Cor do círculo */
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+/* Quando o switch está checado (Dark Mode ativo) */
+input:checked + .slider {
+  background-color: var(--color-pink); /* Cor de fundo quando ON (Rosa) */
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--color-pink);
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(18px); /* Move o círculo para a direita */
+  -ms-transform: translateX(18px);
+  transform: translateX(18px);
+}
+
+/* Cantos arredondados (para o visual "pill" e o círculo) */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
 /* ========================================================= */
 /* GESTÃO / FORMULÁRIOS / TABELAS                            */
 /* ========================================================= */
@@ -123,8 +206,7 @@ h1 {
 }
 
 p { 
-    color: var(--color-purple); 
-
+    color: var(--color-text); /* Aplicado para Dark Mode */
 }
 
 
@@ -136,6 +218,8 @@ input[type="text"], input[type="date"], input[type="number"], input[type="email"
     border-radius: 32px; 
     box-sizing: border-box; 
     margin-bottom: 12px;
+    color: var(--color-text);
+    background-color: var(--color-white);
 }
 
 /* Tabelas */
@@ -171,6 +255,7 @@ tr:hover {
     text-decoration: none; 
     font-size: 14px;
     display: inline-block;
+    white-space: nowrap;
 }
 .btn-adicionar { background-color: #0c9; color: white; padding: 12px; font-weight: 700; }
 .btn-editar { background-color: var(--color-purple); color: white; padding: 8px; }
@@ -180,6 +265,55 @@ tr:hover {
 .btn-limpar { background-color: #ccc; color: #333; padding: 8px 15px; } 
 .btn-buscar { background-color: #90f; color: white; padding: 8px 15px; }
 
+
+/* NOVO: Estilos para Botões de Ícone */
+.btn-icon {
+    width: 32px; 
+    height: 32px; 
+    padding: 0; 
+    border-radius: 50%; 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px; 
+    margin: 0 4px;
+    text-decoration: none;
+    line-height: 1;
+    color: white; /* Garante que o ícone seja branco */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: background-color 0.3s;
+}
+
+
+/* Estilos de Ícone: Editar */
+.btn-icon-editar { 
+    background-color: var(--color-purple); 
+}
+.btn-icon-editar::before {
+    content: "\270E"; /* Símbolo Unicode de Lápis/Editar */
+}
+
+/* Estilos de Ícone: Excluir */
+.btn-icon-excluir { 
+    background-color: #f50c33; 
+}
+.btn-icon-excluir::before {
+    content: "\1F5D1"; /* Símbolo Unicode de Lixeira/Excluir */
+}
+
+/* Estilos para Botões Toggle (Ativar/Desativar) com Ícone */
+.btn-icon-toggle { 
+    padding: 8px 10px;
+    font-size: 14px;
+    border-radius: 32px;
+    margin: 0 4px;
+}
+.btn-toggle-on, .btn-toggle-off {
+    /* Mantém as cores existentes para o toggle */
+}
+
+.btn-salvar { border: none; background-color: rgb(0, 163, 101); color: white; padding: 12px; font-weight: 700; border-radius: 32px; }
+.btn-voltar { text-decoration: none; border: solid 2px rgb(0, 163, 101); color:rgb(0, 163, 101); padding: 12px; font-weight: 600; border-radius: 32px; }
 
 /* ESTILOS DE FILTRO (GRID) */
 .filters-grid { 
@@ -245,3 +379,90 @@ tr:hover {
 .retirado { background-color: #ff9900; } /* Laranja */
 .finalizado { background-color: #0c9; } /* Verde */
 .cancelado { background-color: #f50c33; } /* Vermelho */
+
+
+/* ========================================================= */
+/* ADAPTAÇÕES PARA O DARK MODE                               */
+/* ========================================================= */
+
+/* CORPO e FONTES */
+.dark-mode body {
+    background-color: var(--color-bg);
+}
+.dark-mode p { 
+    color: var(--color-text); 
+}
+
+/* CABEÇALHOS e TÍTULOS */
+.dark-mode h1 { 
+    color: var(--color-purple); 
+}
+.dark-mode .filters-grid label { 
+    color: var(--color-text);
+}
+
+/* FUNDOS DE COMPONENTES (Cartões, Tabelas, Formulários) */
+.dark-mode .stat-card, 
+.dark-mode table, 
+.dark-mode .filters-grid,
+.dark-mode .chart-container,
+.dark-mode .cadastro-form {
+    background-color: var(--color-white); 
+    box-shadow: var(--shadow); 
+}
+
+/* INPUTS e SELECTS */
+.dark-mode input[type="text"], 
+.dark-mode input[type="date"], 
+.dark-mode input[type="number"], 
+.dark-mode input[type="email"], 
+.dark-mode input[type="password"], 
+.dark-mode select, 
+.dark-mode textarea {
+    border: 1px solid var(--color-border-light); 
+    background-color: var(--color-white); 
+    color: var(--color-text);
+}
+
+/* TABELAS */
+.dark-mode th { 
+    background-color: var(--color-purple-light); 
+    color: var(--color-text); 
+    border-bottom: 1px solid var(--color-border-light); 
+}
+.dark-mode td { 
+    border-bottom: 1px solid var(--color-border-light); 
+}
+.dark-mode tr:hover { 
+    background-color: #383838; /* Cinza escuro para hover */
+}
+
+/* ========================================================= */
+/* RODAPÉ GLOBAL (FOOTER) - NOVO                             */
+/* ========================================================= */
+.main-footer {
+    width: 100%;
+    margin-top: 50px; 
+    padding: 20px 0;
+    text-align: center;
+    background-color: #1a0033; 
+    color: #ccc;
+    font-size: 14px;
+    border-top: 3px solid var(--color-pink); 
+}
+.main-footer p {
+    color: #ccc; 
+    margin: 5px 0;
+}
+.main-footer a {
+    color: var(--color-pink);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+.main-footer a:hover {
+    color: var(--color-purple);
+}
+/* No Dark Mode, o rodapé mantém as cores escuras, mas garante o contraste do link */
+.dark-mode .main-footer a {
+    color: var(--color-pink);
+}

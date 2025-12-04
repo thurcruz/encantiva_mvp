@@ -15,11 +15,13 @@ $conn = $conn;
 $erros = [];
 $mensagem_sucesso = '';
 $tipos_festa = [];
+$UPLOAD_DIR = '../assets/temas/'; // Diretório de upload
 
 // Variáveis para pré-preenchimento do formulário (em caso de erro)
 $nome_tema = '';
 $id_tipo = '';
 $ativo = 1;
+$imagem_path_salvar = null; // Variável para armazenar o caminho da imagem
 
 // 2. Buscar Tipos de Festa para o Dropdown
 $sql_tipos = "SELECT id_tipo, nome FROM tipos_festa ORDER BY nome ASC";
@@ -46,14 +48,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($id_tipo <= 0) {
         $erros[] = 'Selecione um tipo de festa válido.';
     }
+    
+    // --- Lógica de Upload de Imagem ---
+    if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK) {
+        $file_tmp = $_FILES['imagem']['tmp_name'];
+        $file_name = basename($_FILES['imagem']['name']);
+        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+        $allowed_ext = ['jpg', 'jpeg', 'png'];
+
+        // Cria o diretório se não existir (Requer permissão de escrita no servidor)
+        if (!is_dir($UPLOAD_DIR)) {
+            mkdir($UPLOAD_DIR, 0777, true); 
+        }
+
+        if (!in_array($file_ext, $allowed_ext)) {
+            $erros[] = 'Somente arquivos JPG, JPEG e PNG são permitidos.';
+        } elseif ($_FILES['imagem']['size'] > 5000000) { // Limite de 5MB
+             $erros[] = 'O arquivo é muito grande (Máximo 5MB).';
+        } else {
+            // Gera um nome único para o arquivo
+            $novo_nome = uniqid() . '.' . $file_ext;
+            $upload_file = $UPLOAD_DIR . $novo_nome;
+
+            if (move_uploaded_file($file_tmp, $upload_file)) {
+                // Caminho relativo para salvar no banco (sem '..' inicial)
+                $imagem_path_salvar = 'assets/temas/' . $novo_nome;
+            } else {
+                $erros[] = 'Erro ao mover o arquivo de upload. Verifique as permissões.';
+            }
+        }
+    }
+    // --- Fim Lógica de Upload de Imagem ---
 
     if (empty($erros)) {
         // Inserção no banco de dados
-        $sql_insert = "INSERT INTO temas (id_tipo, nome, ativo) VALUES (?, ?, ?)";
+        // Adicionando 'imagem_path'
+        $sql_insert = "INSERT INTO temas (id_tipo, nome, ativo, imagem_path) VALUES (?, ?, ?, ?)";
         $stmt = $conn->prepare($sql_insert);
         
         if ($stmt) {
-            $stmt->bind_param("isi", $id_tipo, $nome_tema, $ativo);
+            // "isis" -> integer, string, integer, string (para imagem_path)
+            $stmt->bind_param("isis", $id_tipo, $nome_tema, $ativo, $imagem_path_salvar);
             
             if ($stmt->execute()) {
                 $mensagem_sucesso = "Tema '{$nome_tema}' adicionado com sucesso!";
@@ -100,9 +135,7 @@ $conn->close();
             </div>
         <?php endif; ?>
 
-        <form method="POST">
-            
-            <div class="form-group">
+        <form method="POST" enctype="multipart/form-data"> <div class="form-group">
                 <label for="nome_tema">Nome do Tema:</label>
                 <input type="text" id="nome_tema" name="nome_tema" value="<?php echo htmlspecialchars($nome_tema); ?>" required>
             </div>
@@ -122,6 +155,11 @@ $conn->close();
                     <p class="alerta-erro" style="margin-top: 10px;">Atenção: Nenhum tipo de festa encontrado. Cadastre os tipos primeiro.</p>
                 <?php endif; ?>
             </div>
+            
+            <div class="form-group">
+                <label for="imagem">Imagem do Tema (Opcional, Max 5MB, JPG/PNG):</label>
+                <input class="btn-voltar" type="file" id="imagem" name="imagem" accept=".jpg, .jpeg, .png">
+            </div>
 
             <div class="form-group checkbox-group">
                 <label>
@@ -129,6 +167,7 @@ $conn->close();
                     Tema Ativo (Disponível para clientes)
                 </label>
             </div>
+            <br>
 
             <button type="submit" class="btn-salvar">Salvar Tema</button>
             <a href="temas.php" class="btn-voltar">Voltar para a Lista</a>
@@ -136,5 +175,54 @@ $conn->close();
         </form>
     </div>
     </div>
+ <script>
+    // Função para alternar a classe dark-mode e salvar a preferência
+    function toggleDarkMode() {
+        const body = document.body;
+        const toggle = document.getElementById('darkModeToggle');
+        const logoElement = document.getElementById('sidebarLogo'); // Seleciona o elemento da logo
+        
+        if (toggle.checked) {
+            // Ativa Dark Mode
+            body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+            
+            // Troca para logo escura
+            if (logoElement) {
+                // Substitui 'logo_horizontal.svg' por 'logo_horizontal_dark.svg'
+                logoElement.src = logoElement.src.replace('encantiva_logo_white.png', 'encantiva_logo_dark.png');
+            }
+
+        } else {
+            // Desativa Dark Mode
+            body.classList.remove('dark-mode');
+            localStorage.setItem('theme', 'light');
+
+            // Troca para logo clara
+            if (logoElement) {
+                // Substitui 'logo_horizontal_dark.svg' por 'logo_horizontal.svg'
+                logoElement.src = logoElement.src.replace('encantiva_logo_dark.png', 'encantiva_logo_white.png');
+            }
+        }
+    }
+
+    // Carregar a preferência do tema ao carregar a página
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('theme');
+        const toggle = document.getElementById('darkModeToggle');
+        const logoElement = document.getElementById('sidebarLogo');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            if (toggle) {
+                toggle.checked = true;
+            }
+            // Aplica a logo escura na carga se o tema for dark
+            if (logoElement) {
+                logoElement.src = logoElement.src.replace('encantiva_logo_white.png', 'encantiva_logo_dark.png');
+            }
+        }
+    });
+</script>
 </body>
 </html>

@@ -82,11 +82,14 @@ $conn->close();
                             <td><?php echo htmlspecialchars($cliente['telefone']); ?></td>
                             <td><?php echo date('d/m/Y', strtotime($cliente['data_nasc'])); ?></td>
                             <td>
-                                <a href="editar_cliente.php?id_usuario=<?php echo $cliente['id_usuario']; ?>" class="btn-acao btn-editar">Editar</a>
+                                <a href="editar_cliente.php?id_usuario=<?php echo $cliente['id_usuario']; ?>" 
+                                   class="btn-icon btn-icon-editar" 
+                                   title="Editar">
+                                </a>
                                 <a href="excluir_cliente.php?id_usuario=<?php echo $cliente['id_usuario']; ?>" 
-                                   class="btn-acao btn-excluir" 
-                                   onclick="return confirm('ATENÇÃO! Excluir cliente ID <?php echo $cliente['id_usuario']; ?>?');">
-                                    Excluir
+                                   class="btn-icon btn-icon-excluir" 
+                                   onclick="return confirm('ATENÇÃO! Excluir cliente ID <?php echo $cliente['id_usuario']; ?>?');"
+                                   title="Excluir">
                                 </a>
                             </td>
                         </tr>
@@ -96,5 +99,54 @@ $conn->close();
         <?php endif; ?>
     </div>
                     </div>
+   <script>
+    // Função para alternar a classe dark-mode e salvar a preferência
+    function toggleDarkMode() {
+        const body = document.body;
+        const toggle = document.getElementById('darkModeToggle');
+        const logoElement = document.getElementById('sidebarLogo'); // Seleciona o elemento da logo
+        
+        if (toggle.checked) {
+            // Ativa Dark Mode
+            body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+            
+            // Troca para logo escura
+            if (logoElement) {
+                // Substitui 'logo_horizontal.svg' por 'logo_horizontal_dark.svg'
+                logoElement.src = logoElement.src.replace('encantiva_logo_white.png', 'encantiva_logo_dark.png');
+            }
+
+        } else {
+            // Desativa Dark Mode
+            body.classList.remove('dark-mode');
+            localStorage.setItem('theme', 'light');
+
+            // Troca para logo clara
+            if (logoElement) {
+                // Substitui 'logo_horizontal_dark.svg' por 'logo_horizontal.svg'
+                logoElement.src = logoElement.src.replace('encantiva_logo_dark.png', 'encantiva_logo_white.png');
+            }
+        }
+    }
+
+    // Carregar a preferência do tema ao carregar a página
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('theme');
+        const toggle = document.getElementById('darkModeToggle');
+        const logoElement = document.getElementById('sidebarLogo');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            if (toggle) {
+                toggle.checked = true;
+            }
+            // Aplica a logo escura na carga se o tema for dark
+            if (logoElement) {
+                logoElement.src = logoElement.src.replace('encantiva_logo_white.png', 'encantiva_logo_dark.png');
+            }
+        }
+    });
+</script>
 </body>
 </html>

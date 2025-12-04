@@ -20,6 +20,7 @@ $sql = "SELECT
             t.id_tema, 
             t.nome AS nome_tema, 
             t.ativo, 
+            t.imagem_path, /* NOVO: Caminho da Imagem */
             tf.nome AS nome_tipo_festa
         FROM temas t
         LEFT JOIN tipos_festa tf ON t.id_tipo = tf.id_tipo
@@ -45,6 +46,14 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestão de Temas - Encantiva Festas</title>
     <link rel="stylesheet" href="../css/style.css">
+    <style> /* Estilo para miniaturas */
+        .tema-thumbnail {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
 <div class="main-content-wrapper">
@@ -75,7 +84,7 @@ $conn->close();
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Tema</th>
+                        <th>Imagem</th> <th>Tema</th>
                         <th>Tipo de Festa</th>
                         <th>Status</th>
                         <th>Ações</th>
@@ -85,6 +94,12 @@ $conn->close();
                     <?php foreach ($temas as $tema): ?>
                         <tr>
                             <td><?php echo $tema['id_tema']; ?></td>
+                            <td> <?php if ($tema['imagem_path']): ?>
+                                    <img src="../<?php echo htmlspecialchars($tema['imagem_path']); ?>" alt="Imagem" class="tema-thumbnail">
+                                <?php else: ?>
+                                    N/A
+                                <?php endif; ?>
+                            </td>
                             <td><?php echo htmlspecialchars($tema['nome_tema']); ?></td>
                             <td><?php echo htmlspecialchars($tema['nome_tipo_festa'] ?? 'Geral/Não Atribuído'); ?></td>
                             <td>
@@ -95,7 +110,10 @@ $conn->close();
                                 ?>
                             </td>
                             <td>
-                                <a href="editar_tema.php?id_tema=<?php echo $tema['id_tema']; ?>" class="btn-acao btn-editar">Editar</a>
+                                <a href="editar_tema.php?id_tema=<?php echo $tema['id_tema']; ?>" 
+                                   class="btn-icon btn-icon-editar" 
+                                   title="Editar">
+                                </a>
                                 
                                 <?php 
                                     $novo_status = $tema['ativo'] ? '0' : '1';
@@ -103,15 +121,15 @@ $conn->close();
                                     $acao_class = $tema['ativo'] ? 'btn-toggle-off' : 'btn-toggle-on';
                                 ?>
                                 <a href="toggle_tema.php?id_tema=<?php echo $tema['id_tema']; ?>&status=<?php echo $novo_status; ?>" 
-                                   class="btn-acao <?php echo $acao_class; ?>" 
+                                   class="btn-acao btn-icon-toggle <?php echo $acao_class; ?>" 
                                    onclick="return confirm('Tem certeza que deseja <?php echo strtolower($acao_texto); ?> este tema?');">
                                     <?php echo $acao_texto; ?>
                                 </a>
                                 
                                 <a href="excluir_tema.php?id_tema=<?php echo $tema['id_tema']; ?>" 
-                                   class="btn-acao btn-excluir" 
-                                   onclick="return confirm('ATENÇÃO! Excluir o tema ID <?php echo $tema['id_tema']; ?>? Os pedidos relacionados serão afetados.');">
-                                    Excluir
+                                   class="btn-icon btn-icon-excluir" 
+                                   onclick="return confirm('ATENÇÃO! Excluir o tema ID <?php echo $tema['id_tema']; ?>? Os pedidos relacionados serão afetados.');"
+                                   title="Excluir">
                                 </a>
                             </td>
                         </tr>
@@ -134,10 +152,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const termo = campoBusca.value.toLowerCase();
 
         for (let i = 0; i < linhas.length; i++) {
-            let textoLinha = linhas[i].textContent.toLowerCase();
+            // Buscando o tema e o tipo de festa nas colunas (índices 2 e 3 na tabela HTML)
+            let textoTema = linhas[i].cells[2].textContent.toLowerCase(); 
+            let textoTipo = linhas[i].cells[3].textContent.toLowerCase(); 
             
             // Exibe a linha se o texto da linha incluir o termo de busca
-            if (textoLinha.includes(termo)) {
+            if (textoTema.includes(termo) || textoTipo.includes(termo)) {
                 linhas[i].style.display = '';
             } else {
                 linhas[i].style.display = 'none';
@@ -146,6 +166,54 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+<script>
+    // Função para alternar a classe dark-mode e salvar a preferência
+    function toggleDarkMode() {
+        const body = document.body;
+        const toggle = document.getElementById('darkModeToggle');
+        const logoElement = document.getElementById('sidebarLogo'); // Seleciona o elemento da logo
+        
+        if (toggle.checked) {
+            // Ativa Dark Mode
+            body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+            
+            // Troca para logo escura
+            if (logoElement) {
+                // Substitui 'logo_horizontal.svg' por 'logo_horizontal_dark.svg'
+                logoElement.src = logoElement.src.replace('encantiva_logo_white.png', 'encantiva_logo_dark.png');
+            }
 
+        } else {
+            // Desativa Dark Mode
+            body.classList.remove('dark-mode');
+            localStorage.setItem('theme', 'light');
+
+            // Troca para logo clara
+            if (logoElement) {
+                // Substitui 'logo_horizontal_dark.svg' por 'logo_horizontal.svg'
+                logoElement.src = logoElement.src.replace('encantiva_logo_dark.png', 'encantiva_logo_white.png');
+            }
+        }
+    }
+
+    // Carregar a preferência do tema ao carregar a página
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('theme');
+        const toggle = document.getElementById('darkModeToggle');
+        const logoElement = document.getElementById('sidebarLogo');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            if (toggle) {
+                toggle.checked = true;
+            }
+            // Aplica a logo escura na carga se o tema for dark
+            if (logoElement) {
+                logoElement.src = logoElement.src.replace('encantiva_logo_white.png', 'encantiva_logo_dark.png');
+            }
+        }
+    });
+</script>
 </body>
 </html>

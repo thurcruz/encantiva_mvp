@@ -56,7 +56,7 @@ $conn->close();
 
         <div class="header">
             <h1>Gestão de Adicionais (Catálogo)</h1>
-            <a href="adicionar_adicional.php" class="btn-acao btn-adicionar">+ Adicionar Novo Item</a>
+            <a href="adicionar_adicional.php" class="btn-salvar">+ Adicionar Novo Item</a>
         </div>
 
         <?php if (empty($adicionais)): ?>
@@ -87,8 +87,12 @@ $conn->close();
                                 echo "<span class='status-badge {$class}'>{$status}</span>";
                                 ?>
                             </td>
+                    
                             <td>
-                                <a href="editar_adicional.php?id=<?php echo $item['id_adicional_cat']; ?>" class="btn-acao btn-editar">Editar</a>
+                                <a href="editar_adicional.php?id=<?php echo $item['id_adicional_cat']; ?>" 
+                                   class="btn-icon btn-icon-editar" 
+                                   title="Editar">
+                                </a>
                                 
                                 <?php 
                                     $novo_status = $item['ativo'] ? '0' : '1';
@@ -96,14 +100,14 @@ $conn->close();
                                     $acao_class = $item['ativo'] ? 'btn-toggle-off' : 'btn-toggle-on';
                                 ?>
                                 <a href="toggle_adicional.php?id=<?php echo $item['id_adicional_cat']; ?>&status=<?php echo $novo_status; ?>" 
-                                   class="btn-acao <?php echo $acao_class; ?>" 
+                                   class="btn-acao btn-icon-toggle <?php echo $acao_class; ?>" 
                                    onclick="return confirm('Tem certeza que deseja <?php echo strtolower($acao_texto); ?> este item?');">
                                     <?php echo $acao_texto; ?>
                                 </a>
                                 <a href="excluir_adicional.php?id=<?php echo $item['id_adicional_cat']; ?>" 
-                                   class="btn-acao btn-excluir" 
-                                   onclick="return confirm('ATENÇÃO! Excluir o item ID <?php echo $item['id_adicional_cat']; ?>?');">
-                                    Excluir
+                                   class="btn-icon btn-icon-excluir" 
+                                   onclick="return confirm('ATENÇÃO! Excluir o item ID <?php echo $item['id_adicional_cat']; ?>?');"
+                                   title="Excluir">
                                 </a>
                             </td>
                         </tr>
@@ -113,5 +117,55 @@ $conn->close();
         <?php endif; ?>
     </div>
 </div>
+<script>
+    // Função para alternar a classe dark-mode e salvar a preferência
+    function toggleDarkMode() {
+        const body = document.body;
+        const toggle = document.getElementById('darkModeToggle');
+        const logoElement = document.getElementById('sidebarLogo'); // Seleciona o elemento da logo
+        
+        if (toggle.checked) {
+            // Ativa Dark Mode
+            body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+            
+            // Troca para logo escura
+            if (logoElement) {
+                // Substitui 'logo_horizontal.svg' por 'logo_horizontal_dark.svg'
+                logoElement.src = logoElement.src.replace('encantiva_logo_white.png', 'encantiva_logo_dark.png');
+            }
+
+        } else {
+            // Desativa Dark Mode
+            body.classList.remove('dark-mode');
+            localStorage.setItem('theme', 'light');
+
+            // Troca para logo clara
+            if (logoElement) {
+                // Substitui 'logo_horizontal_dark.svg' por 'logo_horizontal.svg'
+                logoElement.src = logoElement.src.replace('encantiva_logo_dark.png', 'encantiva_logo_white.png');
+            }
+        }
+    }
+
+    // Carregar a preferência do tema ao carregar a página
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('theme');
+        const toggle = document.getElementById('darkModeToggle');
+        const logoElement = document.getElementById('sidebarLogo');
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            if (toggle) {
+                toggle.checked = true;
+            }
+            // Aplica a logo escura na carga se o tema for dark
+            if (logoElement) {
+                logoElement.src = logoElement.src.replace('encantiva_logo_white.png', 'encantiva_logo_dark.png');
+            }
+        }
+    });
+</script>
 </body>
+
 </html>

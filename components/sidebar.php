@@ -8,8 +8,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 <div class="sidebar">
     <div class="sidebar-header">
-        <img src="../assets/logo_horizontal.svg" alt="Encantiva" class="logo-sidebar">
-    </div>
+        <img src="../assets/encantiva_logo_white.png" alt="Encantiva" class="logo-sidebar" id="sidebarLogo">
+        
+        <div style="padding: 10px 0; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            
+            <label class="dark-mode-switch-container" for="darkModeToggle">
+                <input type="checkbox" id="darkModeToggle" onclick="toggleDarkMode()">
+                <span class="slider round"></span>
+            </label>
+            <span style="color: white; font-size: 14px;">Modo Escuro</span>
+        </div>
+        </div>
 
     <nav class="sidebar-nav">
         <ul>
@@ -51,3 +60,4 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <a href="../logout.php" class="btn-logout">Sair</a>
     </div>
 </div>
+
