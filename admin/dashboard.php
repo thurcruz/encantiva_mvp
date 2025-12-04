@@ -1,5 +1,5 @@
 <?php
-// admin/dashboard.php - Painel de Análise e Filtro de Pedidos
+// admin/dashboard.php - Painel de Análise (Somente Estatísticas e Gráficos)
 include '../conexao.php';
 session_start();
 
@@ -8,6 +8,8 @@ if (!isset($_SESSION['admin_id'])) {
     header('Location: ../admin_login.php');
     exit();
 }
+
+include 'sidebar.php';
 
 $conn = $conn;
 $erros = [];
@@ -21,18 +23,7 @@ $meses = [
 ];
 
 
-// --- FETCH DE DADOS DO CATÁLOGO (Para Filtros) ---
-$sql_clientes = "SELECT id_cliente, nome FROM clientes ORDER BY nome ASC";
-$res_clientes = $conn->query($sql_clientes);
-if ($res_clientes) $dados_select['clientes'] = $res_clientes->fetch_all(MYSQLI_ASSOC);
-
-$sql_temas = "SELECT id_tema, nome AS nome_tema FROM temas WHERE ativo = 1 ORDER BY nome_tema ASC";
-$res_temas = $conn->query($sql_temas);
-if ($res_temas) $dados_select['temas'] = $res_temas->fetch_all(MYSQLI_ASSOC);
-// ----------------------------------------------------
-
-
-// --- FETCH DE DADOS ANALÍTICOS (Simplificado) ---
+// --- FETCH DE DADOS ANALÍTICOS ---
 try {
     // 1. Total de Clientes
     $total_clientes = $conn->query("SELECT COUNT(id_cliente) AS total FROM clientes")->fetch_assoc()['total'];
@@ -56,8 +47,8 @@ try {
     $res_pedidos_mes = $conn->query($sql_pedidos_mes);
     $analiticos['pedidos_por_mes'] = $res_pedidos_mes ? $res_pedidos_mes->fetch_all(MYSQLI_ASSOC) : [];
     
-    // 4. Top 1 Tema mais pedido
-    $sql_top_temas = "
+    // 4. Top 5 Temas mais pedidos (Para o gráfico Top Temas)
+    $sql_top_temas_chart = "
         SELECT 
             COALESCE(t.nome, p.tema_personalizado) AS tema_nome,
             COUNT(p.id_pedido) AS total
@@ -65,11 +56,14 @@ try {
         LEFT JOIN temas t ON p.id_tema = t.id_tema
         GROUP BY tema_nome
         ORDER BY total DESC
-        LIMIT 1
+        LIMIT 5
     ";
-    $res_top_temas = $conn->query($sql_top_temas);
-    $top_tema_nome = $res_top_temas->num_rows > 0 ? $res_top_temas->fetch_assoc()['tema_nome'] : 'N/A';
-    $analiticos['top_temas'] = $top_tema_nome;
+    $res_top_temas_chart = $conn->query($sql_top_temas_chart);
+    $analiticos['top_temas_chart'] = $res_top_temas_chart ? $res_top_temas_chart->fetch_all(MYSQLI_ASSOC) : [];
+
+    // 5. Top 1 Tema mais pedido (Para o card de resumo)
+    $top_tema_nome = $analiticos['top_temas_chart'][0]['tema_nome'] ?? 'N/A';
+    $analiticos['top_tema_nome'] = $top_tema_nome;
 
 } catch (Exception $e) {
     $erros[] = "Erro na consulta analítica: " . $e->getMessage();
@@ -84,8 +78,9 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Encantiva Festas</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+    <link rel="stylesheet" href="../css/style.css">
     <style>
-        /* Estilos BÁSICOS (Recuperados do seu gestor.php) */
         body { font-family: 'Inter', sans-serif; margin: 0; padding: 20px; background-color: #fefcff; color: #140033; }
         .container { max-width: 1400px; margin: 0 auto; }
         h1 { color: #90f; border-bottom: 2px solid #f3c; padding-bottom: 10px; margin-bottom: 20px; }
@@ -93,31 +88,29 @@ $conn->close();
         .stat-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; }
         .stat-card h3 { color: #f3c; font-size: 1.8em; font-weight: 700; }
         .stat-card p { color: #6a0dad; margin: 5px 0 0; font-size: 0.9em; }
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
         
-        /* Estilos para Tabela e Filtros */
-        .filters { display: flex; flex-wrap: wrap; gap: 15px; background: #f6e9ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; align-items: flex-end; }
-        .filters label { display: block; font-weight: 600; margin-bottom: 5px; color: #6a0dad; }
-        .filters select, .filters button { padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
-        .btn-filter { background-color: #90f; color: white; border: none; cursor: pointer; }
-        .btn-filter:hover { background-color: #6a0dad; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); background-color: white; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ead3ff; }
-        th { background-color: #f6e9ff; color: #6a0dad; font-weight: 700; }
-        /* Badge Styles */
-        .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; color: white; display: inline-block; }
-        .aguardando { background-color: #f3c; }
-        .confirmado { background-color: #90f; }
-        .finalizado { background-color: #0c9; }
-        .cancelado { background-color: #f50c33; }
-        .emproducao { background-color: #ff9900; }
-        .retirado { background-color: #00bcd4; }
+        /* CORREÇÃO DO BUG DE ESTICAMENTO AQUI */
+        .chart-container { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+            /* CORREÇÃO: Limitar a altura máxima do contêiner */
+            max-height: 400px; 
+            min-height: 300px;
+            position: relative; 
+        }
+        .alerta { color: red; font-weight: bold; }
     </style>
+    
 </head>
 <body>
 
+<div class="main-content-wrapper">
     <div class="container">
         <h1>Dashboard Analítico</h1>
-        <p>Visão geral das estatísticas (Gráficos e Filtros).</p>
+        <p>Visão geral das estatísticas e gráficos de desempenho.</p>
 
         <?php if (!empty($erros)): ?>
             <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border: 1px solid #f5c6cb; border-radius: 4px; margin-bottom: 20px;">
@@ -147,125 +140,92 @@ $conn->close();
                 <p>Receita Total</p>
             </div>
             <div class="stat-card">
-                <h3><?php echo htmlspecialchars($analiticos['top_temas']); ?></h3>
+                <h3><?php echo htmlspecialchars($analiticos['top_tema_nome']); ?></h3>
                 <p>Tema Mais Popular</p>
             </div>
         </div>
 
-        <h2 style="margin-top: 30px;">Lista de Pedidos (Filtros)</h2>
-        <div class="filters">
-            <div class="filter-group">
-                <label for="filtro_mes">Mês/Ano Evento</label>
-                <select id="filtro_mes">
-                    <option value="">Todos</option>
-                    <?php
-                    // Recria a conexão para o loop de datas, caso a anterior tenha falhado ou fechado
-                    $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName); 
-                    if (!$conn->connect_errno) {
-                        $conn->set_charset("utf8");
-                        $data_pedidos = $conn->query("SELECT DISTINCT DATE_FORMAT(data_evento, '%Y-%m') AS mes_ano FROM pedidos ORDER BY mes_ano DESC");
-                        if ($data_pedidos) {
-                            while($row = $data_pedidos->fetch_assoc()) {
-                                $ano = substr($row['mes_ano'], 0, 4);
-                                $mes_num = (int)substr($row['mes_ano'], 5, 2);
-                                $nome_mes = $meses[$mes_num];
-                                echo "<option value=\"{$row['mes_ano']}\">{$nome_mes}/{$ano}</option>";
-                            }
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h3 class="h5">Pedidos por Mês</h3>
+                <canvas id="chartPedidosMes"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3 class="h5">Top 5 Temas</h3>
+                <canvas id="chartTopTemas"></canvas>
+            </div>
+        </div>
+
+    </div>
+</div>
+    <script>
+        // --- DADOS PHP PARA JS ---
+        const dadosPedidosMes = <?php echo json_encode($analiticos['pedidos_por_mes']); ?>;
+        const dadosTopTemas = <?php echo json_encode($analiticos['top_temas_chart']); ?>;
+        const mesesMap = <?php echo json_encode($meses); ?>;
+        // --------------------------
+
+        function renderCharts() {
+            const ctxMes = document.getElementById('chartPedidosMes');
+            const ctxTemas = document.getElementById('chartTopTemas');
+
+            if (!ctxMes || !ctxTemas) return;
+
+            // Chart 1: Pedidos por Mês
+            if (dadosPedidosMes.length === 0) {
+                 ctxMes.parentElement.innerHTML = '<p class="text-muted text-center pt-5">Nenhum dado de pedido para exibir no gráfico.</p>';
+            } else {
+                const labelsMes = dadosPedidosMes.map(d => `${mesesMap[d.mes_num]}/${d.ano}`);
+                const dataMes = dadosPedidosMes.map(d => d.total_pedidos);
+
+                new Chart(ctxMes, {
+                    type: 'bar',
+                    data: {
+                        labels: labelsMes,
+                        datasets: [{
+                            label: 'Número de Pedidos',
+                            data: dataMes,
+                            backgroundColor: 'rgba(153, 0, 255, 0.7)',
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false, 
+                        scales: { y: { beginAtZero: true } }
+                    }
+                });
+            }
+
+            // Chart 2: Top Temas
+            if (dadosTopTemas.length === 0) {
+                 ctxTemas.parentElement.innerHTML = '<p class="text-muted text-center pt-5">Nenhum dado de tema para exibir no gráfico.</p>';
+            } else {
+                const labelsTemas = dadosTopTemas.map(d => d.tema_nome);
+                const dataTemas = dadosTopTemas.map(d => d.total);
+
+                new Chart(ctxTemas, {
+                    type: 'pie',
+                    data: {
+                        labels: labelsTemas,
+                        datasets: [{
+                            label: 'Temas Mais Pedidos',
+                            data: dataTemas,
+                            backgroundColor: ['#f3c', '#90f', '#0c9', '#ff9900', '#3366ff'],
+                        }]
+                    },
+                     options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'right' }
                         }
                     }
-                    ?>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="filtro_cliente">Cliente</label>
-                <select id="filtro_cliente">
-                    <option value="">Todos</option>
-                    <?php foreach($dados_select['clientes'] as $cliente): ?>
-                        <option value="<?php echo $cliente['id_cliente']; ?>"><?php echo htmlspecialchars($cliente['nome']); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="filtro_tema">Tema</label>
-                <select id="filtro_tema">
-                    <option value="">Todos</option>
-                    <?php foreach($dados_select['temas'] as $tema): ?>
-                        <option value="<?php echo $tema['id_tema']; ?>"><?php echo htmlspecialchars($tema['nome_tema']); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="filtro_status_pagamento">Status</label>
-                <select id="filtro_status_pagamento">
-                    <option value="">Todos</option>
-                    <option value="Finalizado">Finalizado</option>
-                    <option value="Confirmado">Confirmado</option>
-                    <option value="Em Produção">Em Produção</option>
-                    <option value="Retirado">Retirado</option>
-                    <option value="Aguardando Contato">Aguardando Contato</option>
-                    <option value="Cancelado">Cancelado</option>
-                </select>
-            </div>
-            <button id="aplicar_filtros" class="btn-filter">Aplicar Filtros</button>
-        </div>
-
-        <div id="lista_pedidos">
-            <table id="tabela-resultados">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Criação</th>
-                        <th>Cliente</th>
-                        <th>Tema</th>
-                        <th>Data Evento</th>
-                        <th>Combo</th>
-                        <th>Status</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="pedidos_tbody">
-                    <tr><td colspan='8'>Clique em "Aplicar Filtros" para carregar os pedidos.</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <script>
-        function carregarPedidosFiltrados() {
-            const mes = document.getElementById('filtro_mes').value;
-            const cliente = document.getElementById('filtro_cliente').value;
-            const tema = document.getElementById('filtro_tema').value;
-            const status_pagamento = document.getElementById('filtro_status_pagamento').value;
-
-            const queryParams = new URLSearchParams({
-                mes: mes,
-                cliente: cliente,
-                tema: tema,
-                status: status_pagamento
-            }).toString();
-            
-            document.getElementById('pedidos_tbody').innerHTML = '<tr><td colspan="8">Carregando...</td></tr>';
-
-            // Faz a requisição AJAX para o endpoint de consulta
-            fetch('dashboard_consulta.php?' + queryParams)
-                .then(res => res.text())
-                .then(html => {
-                    document.getElementById('pedidos_tbody').innerHTML = html;
-                })
-                .catch(err => {
-                    document.getElementById('pedidos_tbody').innerHTML = '<tr><td colspan="8">Erro ao carregar dados filtrados. Verifique o console.</td></tr>';
-                    console.error("Erro AJAX:", err);
                 });
+            }
         }
-
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', function() {
-            // Carregar a lista inicial ao carregar o dashboard
-            carregarPedidosFiltrados(); 
-
-            // Listener para o botão de filtro
-            document.getElementById('aplicar_filtros').addEventListener('click', carregarPedidosFiltrados);
-        });
+        
+        // Inicialização dos Gráficos após o DOM estar totalmente carregado
+        document.addEventListener('DOMContentLoaded', renderCharts);
 
     </script>
 </body>
