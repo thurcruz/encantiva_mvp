@@ -71,6 +71,7 @@ $stmt = $conn->prepare($sql);
 if ($stmt) {
     // Adiciona os tipos e parâmetros dinamicamente
     if (!empty($tipos)) {
+        // Usa o array de parâmetros para o bind_param
         $bind_params = array_merge([$tipos], $parametros);
         $stmt->bind_param(...$bind_params);
     }
@@ -96,7 +97,7 @@ if ($stmt) {
             echo "<tr>";
             echo "<td>{$id_pedido}</td>";
             echo "<td>" . date('d/m/Y H:i', strtotime($pedido['data_criacao'])) . "</td>";
-            echo "<td>{$nome_cliente}</td>";
+            echo "<td>{$nome_cliente}<br><small>{$pedido['telefone']}</small></td>";
             echo "<td>{$tema_exibicao}</td>";
             echo "<td>{$data_evento_formatada}</td>";
             echo "<td>{$combo_selecionado}</td>";

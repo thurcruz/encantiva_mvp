@@ -6,15 +6,67 @@ session_start();
 
 // Verifica se houve erro na conexão
 if ($conn->connect_errno) {
-    echo "<tr><td colspan='9'>Erro na conexão: " . $conn->connect_error . "</td></tr>";
+    echo "<tr><td colspan='9'>Erro na conexão com o banco de dados.</td></tr>";
     exit();
 }
 
-$busca = isset($_GET['busca']) ? trim($_GET['busca']) : "";
-// Prepara o termo de busca para a cláusula LIKE (%busca%)
-$termo_busca = "%" . $busca . "%";
+$conn = $conn;
+$parametros = [];
+$tipos = '';
+$where = "WHERE 1=1 ";
 
-// 1. Constrói a query SQL com JOIN e COALESCE
+
+// --- FILTROS RECEBIDOS ---
+$filtro_mes = $_GET['mes'] ?? '';
+$filtro_cliente_id = intval($_GET['cliente'] ?? 0);
+$filtro_tema_id = intval($_GET['tema'] ?? 0);
+$filtro_status = $_GET['status'] ?? ''; 
+$filtro_texto = $_GET['texto'] ?? ''; // NOVO: Campo de busca de texto
+
+
+// --- LÓGICA DE FILTROS ---
+
+// Filtro de Texto (Busca geral por LIKE em 3 colunas)
+if (!empty($filtro_texto)) {
+    $termo_like = "%" . $filtro_texto . "%";
+    // Aplica a busca LIKE em nome, tema e telefone
+    $where .= "AND (p.nome_cliente LIKE ? OR COALESCE(t.nome, p.tema_personalizado) LIKE ? OR p.telefone LIKE ?) ";
+    $tipos .= "sss";
+    $parametros[] = $termo_like;
+    $parametros[] = $termo_like;
+    $parametros[] = $termo_like;
+}
+
+// Filtro por Mês/Ano do Evento
+if (!empty($filtro_mes)) {
+    $where .= "AND DATE_FORMAT(p.data_evento, '%Y-%m') = ? ";
+    $tipos .= "s";
+    $parametros[] = $filtro_mes;
+}
+
+// Filtro por Cliente
+if ($filtro_cliente_id > 0) {
+    $where .= "AND p.id_cliente = ? ";
+    $tipos .= "i";
+    $parametros[] = $filtro_cliente_id;
+}
+
+// Filtro por Tema
+if ($filtro_tema_id > 0) {
+    $where .= "AND p.id_tema = ? ";
+    $tipos .= "i";
+    $parametros[] = $filtro_tema_id;
+}
+
+// Filtro por Status
+if (!empty($filtro_status)) {
+    $where .= "AND p.status = ? ";
+    $tipos .= "s";
+    $parametros[] = $filtro_status;
+}
+
+
+// --- CONSULTA SQL PRINCIPAL ---
 $sql = "SELECT 
             p.id_pedido, 
             p.data_criacao, 
@@ -24,28 +76,23 @@ $sql = "SELECT
             p.combo_selecionado, 
             p.valor_total, 
             p.status,
-            -- COALESCE retorna o nome do tema (t.nome) ou o tema personalizado (p.tema_personalizado)
             COALESCE(t.nome, p.tema_personalizado) AS nome_tema_exibicao
         FROM pedidos p
         LEFT JOIN temas t ON p.id_tema = t.id_tema
-        WHERE 
-            p.nome_cliente LIKE ? OR 
-            COALESCE(t.nome, p.tema_personalizado) LIKE ? OR 
-            p.telefone LIKE ?
+        {$where}
         ORDER BY p.data_criacao DESC";
 
-// 2. Prepara a declaração
 $stmt = $conn->prepare($sql);
 
 if ($stmt) {
-    // 3. Faz o bind dos parâmetros (3x o termo de busca como string 's')
-    // O filtro é aplicado a (nome_cliente, nome_tema_exibicao, telefone)
-    $stmt->bind_param("sss", $termo_busca, $termo_busca, $termo_busca);
+    // Adiciona os tipos e parâmetros dinamicamente (APENAS se houver filtros)
+    if (!empty($tipos)) {
+        $bind_params = array_merge([$tipos], $parametros);
+        // Usa o operador splat (...) para passar o array de parâmetros
+        $stmt->bind_param(...$bind_params);
+    }
     
-    // 4. Executa
     $stmt->execute();
-    
-    // 5. Obtém o resultado
     $resultado = $stmt->get_result();
     
     if ($resultado->num_rows > 0) {
