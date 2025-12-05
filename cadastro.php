@@ -12,8 +12,17 @@ if (isset($_SESSION['usuario_id'])) {
     exit();
 }
 
+// ===================================
+// CORREÇÃO: Inicialização das variáveis
+// ===================================
+$nome = '';
+$email = '';
+$telefone = '';
+$data_nasc = '';
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Recebe e sanitiza os dados
+    // As variáveis são redefinidas aqui, se o POST ocorreu
     $nome = trim($_POST['nome'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $senha = $_POST['senha'] ?? '';
@@ -49,9 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     
                     if ($stmt_insert->execute()) {
                         $mensagem_sucesso = 'Cadastro realizado com sucesso! Você pode fazer login.';
-                        // Opcional: Redirecionar imediatamente
-                        // header('Location: login.php?cadastro=sucesso');
-                        // exit();
                     } else {
                         $mensagem_erro = 'Erro ao cadastrar: ' . $stmt_insert->error;
                     }
@@ -75,36 +81,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   <title>Cadastro - Encantiva</title>
   <link rel="stylesheet" href="css/style.css"> 
   <style>
+    /* Estilos customizados para esta tela, integrados com as variáveis do style.css */
     .cadastro-container {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 80vh;
+        min-height: 100vh; 
         text-align: center;
     }
     .cadastro-form {
         max-width: 400px;
         width: 100%;
-        padding: 20px;
+        padding: 30px;
         border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        box-shadow: var(--shadow);
         background: var(--color-white);
     }
-    .cadastro-form input {
-        margin-bottom: 15px;
-        width: 100%;
+    .cadastro-form img {
+        max-width: 180px;
+        margin-bottom: 20px;
     }
     .cadastro-error { color: red; margin-bottom: 15px; }
     .cadastro-sucesso { color: green; margin-bottom: 15px; }
-    .small-label { display: block; text-align: left; margin-bottom: 5px; font-size: 14px; font-weight: 600; color: #333; }
+    .small-label { display: block; text-align: left; margin-bottom: 5px; font-size: 14px; font-weight: 600; color: var(--color-text); }
   </style>
 </head>
 <body>
 
 <div class="cadastro-container">
     <div class="cadastro-form">
-        <img src="assets/logo_horizontal.svg" alt="Logo Encantiva" style="max-width: 150px; margin-bottom: 20px;">
+        <img src="assets/encantiva_logo.png" alt="Logo Encantiva" id="cadastroLogo">
+        
         <h2>Crie sua conta</h2>
         
         <?php if (!empty($mensagem_erro)): ?>
@@ -113,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         <?php if (!empty($mensagem_sucesso)): ?>
             <p class="cadastro-sucesso"><?php echo $mensagem_sucesso; ?></p>
-            <a href="login.php" class="btn btn-primary" style="text-decoration:none; display:block; margin-top:20px;">Fazer Login</a>
+            <a href="admin_login.php" class="btn-salvar" style="text-decoration:none; display:block; margin-top:20px; text-align:center;">Fazer Login</a>
         <?php endif; ?>
 
         <?php if (empty($mensagem_sucesso)): ?>
@@ -125,12 +133,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <label for="data_nasc" class="small-label">Data de Nascimento:</label>
             <input type="date" id="data_nasc" name="data_nasc" class="input-padrao" value="<?php echo htmlspecialchars($data_nasc); ?>" required>
             
-            <button type="submit" class="btn btn-primary">Cadastrar</button>
+            <button type="submit" class="btn-salvar">Cadastrar</button>
         </form>
-        <p style="margin-top: 15px;">Já tem conta? <a href="login.php">Fazer Login</a></p>
+        <p style="margin-top: 15px;">Já tem conta? <a href="admin_login.php">Fazer Login</a></p>
         <?php endif; ?>
     </div>
 </div>
+
+
 
 </body>
 </html>

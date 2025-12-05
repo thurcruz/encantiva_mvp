@@ -12,11 +12,12 @@ if (isset($_SESSION['admin_id'])) {
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'] ?? '';
-    $senha_digitada = $_POST['senha'] ?? '';
+    $senha_digitada = $_POST['senha'] ?? ''; // Senha em texto puro
 
     if (empty($email) || empty($senha_digitada)) {
         $mensagem_erro = 'Preencha todos os campos.';
     } else {
+        // A consulta SQL continua buscando o hash (coluna 'senha')
         $sql = "SELECT id_usuario, nome, senha FROM usuarios WHERE email = ?";
         $stmt = $conn->prepare($sql);
         
@@ -26,18 +27,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $resultado = $stmt->get_result();
             
             if ($usuario = $resultado->fetch_assoc()) {
-                // NOTA: Aqui, você DEVE usar password_verify se as senhas forem HASHES.
-                // Usaremos comparação direta como base, mas MANTENHA O AVISO DE HASH.
-                if ($senha_digitada === $usuario['senha'] /* ou password_verify */) { 
+                
+                // CORREÇÃO CRÍTICA: Usa password_verify para comparar a senha digitada 
+                // com o hash armazenado no banco ($usuario['senha']).
+                if (password_verify($senha_digitada, $usuario['senha'])) { 
                     
                     $_SESSION['admin_id'] = $usuario['id_usuario'];
                     $_SESSION['admin_nome'] = $usuario['nome'];
                     header('Location: admin/gestor.php');
                     exit();
                 } else {
+                    // Senha incorreta (mesmo que o usuário exista)
                     $mensagem_erro = 'Email ou senha incorretos.';
                 }
             } else {
+                // Usuário não encontrado
                 $mensagem_erro = 'Email ou senha incorretos.';
             }
             $stmt->close();
@@ -56,6 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
 <div class="login-container">
     <div class="login-form">
+        <img src="assets/encantiva_logo.png" alt="Logo Encantiva" id="loginLogo">
+        
         <h2>Login do Gestor</h2>
         <?php if (!empty($mensagem_erro)): ?>
             <p class="cadastro-error"><?php echo $mensagem_erro; ?></p>
@@ -64,8 +70,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <form method="POST">
             <input type="email" name="email" class="input-padrao" placeholder="Email" required>
             <input type="password" name="senha" class="input-padrao" placeholder="Senha" required>
-            <button type="submit" class="btn btn-primary">Entrar</button>
+            <button type="submit" class="btn-enviar">Entrar</button>
         </form>
+        
+        <p style="margin-top: 15px;">
+             Não é um Gestor? <a href="cadastro.php">Cadastre-se aqui</a>
+        </p>
     </div>
 </div>
 </body>

@@ -211,7 +211,7 @@ p {
 
 
 /* Inputs, Selects e Textareas */
-input[type="text"], input[type="date"], input[type="number"], input[type="email"], input[type="password"], select, textarea { 
+input[type="text"], input[type="date"], input[type="number"], input[type="email"], input[type="tel"], input[type="password"], select, textarea { 
     width: 100%; 
     padding: 12px; 
     border: 1px solid #ccc; 
@@ -311,6 +311,8 @@ tr:hover {
 .btn-toggle-on, .btn-toggle-off {
     /* Mantém as cores existentes para o toggle */
 }
+
+.btn-enviar { border: none; background-color: rgb(0, 163, 101); color: white; width: 100%; padding: 12px; font-weight: 700; border-radius: 32px; }
 
 .btn-salvar { border: none; background-color: rgb(0, 163, 101); color: white; padding: 12px; font-weight: 700; border-radius: 32px; }
 .btn-voltar { text-decoration: none; border: solid 2px rgb(0, 163, 101); color:rgb(0, 163, 101); padding: 12px; font-weight: 600; border-radius: 32px; }
@@ -557,4 +559,43 @@ tr:hover {
 }
 .dark-mode .next-events-list a {
     color: var(--color-text);
+}
+
+/* Adicione ou ajuste estas regras no seu arquivo css/style.css */
+
+.login-container, .cadastro-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    text-align: center;
+    background-color: #0f001d;
+}
+
+.login-form, .cadastro-form {
+    max-width: 400px;
+    width: 100%;
+    padding: 30px;
+    border-radius: 32px;
+    box-shadow: var(--shadow);
+    background: var(--color-white);
+}
+
+.login-form img, .cadastro-form img {
+    max-width: 180px;
+    margin-bottom: 20px;
+}
+
+.login-form h2, .cadastro-form h2 {
+    color: var(--color-purple-dark);
+    margin-top: 0;
+    border-bottom: 1px solid var(--color-border-light);
+    padding-bottom: 10px;
+}
+
+.login-form p a, .cadastro-form p a {
+    color: var(--color-pink);
+    text-decoration: none;
+    font-weight: 600;
 }
